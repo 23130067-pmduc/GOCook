@@ -31,3 +31,11 @@ CREATE TABLE "user_roles"
     "created_at" bigint                NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::bigint,
     "updated_at" bigint                NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::bigint
 );
+
+-- Default roles required by sign-up/login authorization
+INSERT INTO "roles" ("role_name")
+SELECT v.role_name
+FROM (VALUES ('USER'), ('INSTRUCTOR'), ('ADMIN'), ('COMPANY_ADMIN')) AS v(role_name)
+WHERE NOT EXISTS (
+    SELECT 1 FROM "roles" r WHERE r."role_name" = v.role_name
+);
