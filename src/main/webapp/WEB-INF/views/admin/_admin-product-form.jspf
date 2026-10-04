@@ -1,0 +1,45 @@
+<form class="card stack" method="post" action="${pageContext.request.contextPath}${formAction}">
+  <c:if test="${not empty product.id}"><input type="hidden" name="id" value="${product.id}"></c:if>
+  <label class="field">Tên thực đơn
+    <input name="name" type="text" required maxlength="255" value="<c:out value='${product.name}'/>" placeholder="Nhập tên thực đơn">
+  </label>
+  <div class="grid grid-2">
+    <label class="field">Danh mục
+      <select name="category" required>
+        <c:forEach var="category" items="${categories}">
+          <option value="<c:out value='${category}'/>" ${product.category eq category ? 'selected' : ''}><c:out value="${category}"/></option>
+        </c:forEach>
+      </select>
+    </label>
+    <label class="field">Trạng thái
+      <select name="status" required>
+        <c:forEach var="status" items="${productStatuses}">
+          <option value="${status.value}" ${product.status.value eq status.value ? 'selected' : ''}>${status.label}</option>
+        </c:forEach>
+      </select>
+    </label>
+    <label class="field">Giá mỗi người (đ)
+      <input name="unitPrice" type="number" min="0" step="1000" required value="${product.unitPrice}">
+    </label>
+    <label class="field">Số người tối thiểu
+      <input name="minGuests" type="number" min="1" required value="${product.minGuests}">
+    </label>
+    <label class="field">Số người tối đa
+      <input name="maxGuests" type="number" min="1" required value="${product.maxGuests}">
+    </label>
+  </div>
+  <label class="field">Các món trong thực đơn
+    <textarea name="dishItems" placeholder="Mỗi món một dòng"><c:out value="${product.dishItems}"/></textarea>
+  </label>
+  <label class="field">Mô tả
+    <textarea name="description" placeholder="Giới thiệu hương vị, nguyên liệu và cách phục vụ..."><c:out value="${product.description}"/></textarea>
+  </label>
+  <label class="field">URL ảnh
+    <input name="imageUrl" type="text" maxlength="1000" value="<c:out value='${product.imageUrl}'/>" placeholder="https://...">
+    <small>Chỉ lưu URL để không đụng module upload ảnh của phần khác.</small>
+  </label>
+  <div class="row">
+    <button class="btn" type="submit">${formSubmitLabel}</button>
+    <a class="btn secondary" href="${pageContext.request.contextPath}/admin/products">Hủy</a>
+  </div>
+</form>

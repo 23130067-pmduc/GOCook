@@ -17,58 +17,10 @@ public class PageController {
     return "customer/account";
   }
 
-  @GetMapping("/admin")
-  @PreAuthorize("hasAuthority('ROLE_SYSTEM_ADMIN')")
-  public String admin() {
-    return "admin/admin";
-  }
-
-  @GetMapping("/admin/order-detail")
-  @PreAuthorize("hasAuthority('ROLE_SYSTEM_ADMIN')")
-  public String adminOrderDetail() {
-    return "admin/admin-order-detail";
-  }
-
-  @GetMapping("/admin/orders")
-  @PreAuthorize("hasAuthority('ROLE_SYSTEM_ADMIN')")
-  public String adminOrders() {
-    return "admin/admin-orders";
-  }
-
-  @GetMapping("/admin/product-edit")
-  @PreAuthorize("hasAuthority('ROLE_SYSTEM_ADMIN')")
-  public String adminProductEdit() {
-    return "admin/admin-product-edit";
-  }
-
-  @GetMapping("/admin/product-new")
-  @PreAuthorize("hasAuthority('ROLE_SYSTEM_ADMIN')")
-  public String adminProductNew() {
-    return "admin/admin-product-new";
-  }
-
-  @GetMapping("/admin/products")
-  @PreAuthorize("hasAuthority('ROLE_SYSTEM_ADMIN')")
-  public String adminProducts() {
-    return "admin/admin-products";
-  }
-
   @GetMapping("/admin/statistics")
   @PreAuthorize("hasAuthority('ROLE_SYSTEM_ADMIN')")
   public String adminStatistics() {
     return "admin/admin-statistics";
-  }
-
-  @GetMapping("/admin/user-edit")
-  @PreAuthorize("hasAuthority('ROLE_SYSTEM_ADMIN')")
-  public String adminUserEdit() {
-    return "admin/admin-user-edit";
-  }
-
-  @GetMapping("/admin/users")
-  @PreAuthorize("hasAuthority('ROLE_SYSTEM_ADMIN')")
-  public String adminUsers() {
-    return "admin/admin-users";
   }
 
   @GetMapping("/become-chef")
