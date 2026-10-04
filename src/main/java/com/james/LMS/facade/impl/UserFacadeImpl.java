@@ -13,6 +13,7 @@ import com.james.LMS.service.*;
 import com.james.LMS.util.DateUtil;
 import com.james.LMS.util.MailUtil;
 import com.james.LMS.util.OTPGeneratorUtil;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,14 +39,16 @@ public class UserFacadeImpl implements UserFacade {
   @Override
   @Transactional
   public BaseResponse<Void> signUp(UpsertUserRequest upsertUserRequest) {
-    boolean isExistUser = this.userService.existsUserByEmail(upsertUserRequest.getEmail());
+    String email = upsertUserRequest.getEmail().trim().toLowerCase(Locale.ROOT);
+
+    boolean isExistUser = this.userService.existsUserByEmail(email);
     if (isExistUser) throw new UserAlreadyExistException(ErrorCode.USER_ALREADY_EXISTS);
 
     String passwordEncoded = this.passwordEncoder.encode(upsertUserRequest.getPassword());
     User user =
         User.builder()
-            .username(upsertUserRequest.getUsername())
-            .email(upsertUserRequest.getEmail())
+            .username(upsertUserRequest.getUsername().trim())
+            .email(email)
             .password(passwordEncoded)
             .build();
 

@@ -110,7 +110,7 @@ public class UserController {
   @ResponseStatus(HttpStatus.OK)
   @Operation(tags = {"User APIs"})
   @SecurityRequirement(name = SecurityConfig.SECURITY_REQUIREMENT)
-  @PreAuthorize("hasRole('ROLE_USER')")
+  @PreAuthorize("hasAuthority('ROLE_USER')")
   public BaseResponse<UserDetailResponse> findProfile() {
     return this.userFacade.findProfile();
   }
@@ -119,7 +119,7 @@ public class UserController {
   @ResponseStatus(HttpStatus.OK)
   @Operation(tags = {"User APIs"})
   @SecurityRequirement(name = SecurityConfig.SECURITY_REQUIREMENT)
-  @PreAuthorize("hasRole('ROLE_USER')")
+  @PreAuthorize("hasAuthority('ROLE_USER')")
   public BaseResponse<UserDetailResponse> findDetailById(@PathVariable Long id) {
     return this.userFacade.findDetailById(id);
   }
@@ -140,7 +140,7 @@ public class UserController {
   @ResponseStatus(HttpStatus.OK)
   @Operation(tags = {"User APIs"})
   @SecurityRequirement(name = SecurityConfig.SECURITY_REQUIREMENT)
-  @PreAuthorize("hasRole('ROLE_USER')")
+  @PreAuthorize("hasAuthority('ROLE_USER')")
   public BaseResponse<Void> updateProfile(
       @RequestBody UpdateUserProfileRequest updateUserProfileRequest) {
     return this.userFacade.updateProfile(updateUserProfileRequest);

@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!doctype html>
 <html lang="vi">
   <head>
@@ -102,16 +103,16 @@
           <form class="stack">
             <section class="card stack">
               <div class="row">
-                <span class="avatar large">NA</span>
+                <span class="avatar large" id="profile-avatar">--</span>
                 <div>
-                  <h3>Ngọc Anh</h3>
-                  <p class="small muted">Tài khoản khách hàng · Hồ sơ mẫu</p>
+                  <h3 id="profile-display-name">Đang tải...</h3>
+                  <p class="small muted" id="profile-summary">Tài khoản khách hàng</p>
                 </div>
               </div>
               <div class="grid grid-2">
-                <label class="field" for="full-name">Họ và tên<input id="full-name" name="full-name" type="text" value="Ngọc Anh" placeholder="" autocomplete="name">
+                <label class="field" for="full-name">Họ và tên<input id="full-name" name="full-name" type="text" value="" placeholder="Họ và tên" autocomplete="name" readonly>
                 </label>
-                <label class="field" for="email">Email<input id="email" name="email" type="email" value="" placeholder="Email của bạn" autocomplete="email">
+                <label class="field" for="email">Email<input id="email" name="email" type="email" value="" placeholder="Email của bạn" autocomplete="email" readonly>
                 </label>
                 <label class="field" for="mobile">Số điện thoại<input id="mobile" name="mobile" type="tel" value="" placeholder="Số điện thoại">
                 </label>
@@ -202,5 +203,9 @@
         <path d="M7 8h9M7 12h6"></path>
       </svg>
     </a>
+      <script>window.GOCOOK_CONTEXT_PATH = "${pageContext.request.contextPath}";</script>
+    <script src="${pageContext.request.contextPath}/js/account.js"></script>
+      <script>window.GOCOOK_CONTEXT_PATH = window.GOCOOK_CONTEXT_PATH || "${pageContext.request.contextPath}";</script>
+    <script src="${pageContext.request.contextPath}/js/session-ui.js"></script>
   </body>
 </html>

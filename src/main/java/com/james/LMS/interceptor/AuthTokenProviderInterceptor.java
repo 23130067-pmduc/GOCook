@@ -33,8 +33,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class AuthTokenProviderInterceptor extends OncePerRequestFilter {
 
-  private static final String RESET_PASSWORD_URL = "/api/v1/users/reset-password";
-  private final UserService userService;
+  private static final String RESET_PASSWORD_URL = "/api/v1/users/reset-password";  private final UserService userService;
   private final CacheService cacheService;
   private final JwtService jwtService;
   private final RoleService roleService;

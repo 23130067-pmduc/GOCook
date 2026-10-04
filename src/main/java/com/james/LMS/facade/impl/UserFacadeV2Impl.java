@@ -2,6 +2,8 @@ package com.james.LMS.facade.impl;
 
 import com.james.LMS.config.SecurityConfig;
 import com.james.LMS.config.SecurityUserDetails;
+import com.james.LMS.entity.Role;
+import com.james.LMS.enums.ErrorCode;
 import com.james.LMS.enums.TokenType;
 import com.james.LMS.facade.UserFacadeV2;
 import com.james.LMS.request.LoginRequest;
@@ -13,14 +15,19 @@ import com.james.LMS.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,7 +39,6 @@ public class UserFacadeV2Impl implements UserFacadeV2 {
   private final UserService userService;
   private final JwtService jwtService;
   private final CacheService cacheService;
-  private final AuthenticationManager authenticationManager;
   private final PasswordEncoder passwordEncoder;
   private final RoleService roleService;
 
@@ -50,20 +56,40 @@ public class UserFacadeV2Impl implements UserFacadeV2 {
   @Override
   public BaseResponse<Void> login(LoginRequest loginRequest, HttpServletResponse response) {
     log.info("Login v2");
-    var authentication =
-        authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                loginRequest.getEmail(), loginRequest.getPassword()));
+
+    // Keep e-mail handling identical to sign-up. This also avoids failures caused by
+    // accidental leading/trailing spaces or upper-case characters in the e-mail.
+    String email = loginRequest.getEmail().trim().toLowerCase(Locale.ROOT);
+
+    var user =
+        userService
+            .findByEmail(email)
+            .orElseThrow(
+                () -> new BadCredentialsException(ErrorCode.INVALID_CREDENTIALS.getMessage()));
+
+    if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+      throw new BadCredentialsException(ErrorCode.INVALID_CREDENTIALS.getMessage());
+    }
+
+    List<Role> roles = roleService.findAllByUserId(user.getId());
+    List<GrantedAuthority> authorities =
+        roles.stream()
+            .map(role -> new SimpleGrantedAuthority(role.getRoleName().getContent()))
+            .collect(Collectors.toList());
+
+    SecurityUserDetails principal = SecurityUserDetails.build(user, authorities);
+
+    UsernamePasswordAuthenticationToken authentication =
+        new UsernamePasswordAuthenticationToken(principal, null, authorities);
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-    var accessToken = jwtService.generateAccessToken(loginRequest.getEmail());
-    var refreshToken = jwtService.generateRefreshToken(loginRequest.getEmail());
+    String accessToken = jwtService.generateAccessToken(email);
+    String refreshToken = jwtService.generateRefreshToken(email);
 
-    var refreshTokenCacheKey =
-        String.format(TokenType.REFRESH_TOKEN.getCacheKeyTemplate(), loginRequest.getEmail());
-
-    var accessTokenCacheKey =
-        String.format(TokenType.ACCESS_TOKEN.getCacheKeyTemplate(), loginRequest.getEmail());
+    String refreshTokenCacheKey =
+        String.format(TokenType.REFRESH_TOKEN.getCacheKeyTemplate(), email);
+    String accessTokenCacheKey =
+        String.format(TokenType.ACCESS_TOKEN.getCacheKeyTemplate(), email);
 
     cacheService.store(accessTokenCacheKey, accessToken, 1, TimeUnit.HOURS);
     cacheService.store(refreshTokenCacheKey, refreshToken, 14, TimeUnit.DAYS);
@@ -86,12 +112,7 @@ public class UserFacadeV2Impl implements UserFacadeV2 {
             .maxAge(COOKIE_REFRESH_TOKEN_TTL)
             .build();
 
-    var principal =
-        (SecurityUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
     String rememberInfo = URLEncoder.encode(principal.getRememberInfo(), StandardCharsets.UTF_8);
-
-    log.info(rememberInfo);
 
     ResponseCookie rememberMeCookie =
         ResponseCookie.from(REMEMBER_ME_KEY, rememberInfo)
@@ -115,6 +136,7 @@ public class UserFacadeV2Impl implements UserFacadeV2 {
     response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
     response.addHeader(HttpHeaders.SET_COOKIE, validateLoginCookie.toString());
     response.addHeader(HttpHeaders.SET_COOKIE, rememberMeCookie.toString());
+
     return BaseResponse.ok();
   }
 }
