@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!doctype html>
 <html lang="vi">
   <head>
@@ -130,6 +131,8 @@
       </svg>
     </a>
       <script>window.GOCOOK_CONTEXT_PATH = "${pageContext.request.contextPath}";</script>
-    <script src="${pageContext.request.contextPath}/js/auth.js"></script>
+    <script src="${pageContext.request.contextPath}/js/auth.js?v=8"></script>
+      <script>window.GOCOOK_CONTEXT_PATH = window.GOCOOK_CONTEXT_PATH || "${pageContext.request.contextPath}";</script>
+    <script src="${pageContext.request.contextPath}/js/session-ui.js?v=8"></script>
   </body>
 </html>

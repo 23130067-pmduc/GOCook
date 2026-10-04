@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!doctype html>
 <html lang="vi">
   <head>
@@ -80,22 +81,17 @@
               <h1>Chào bạn trở lại!</h1>
               <p class="muted">Bữa cơm ngon tiếp theo đang chờ bạn.</p>
             </div>
-            <form class="stack">
+            <form id="login-form" class="stack" novalidate>
               <label class="field" for="login-email">Email<input id="login-email" name="login-email" type="email" value="" placeholder="ban@example.com" autocomplete="username" required>
               </label>
               <label class="field" for="login-password">Mật khẩu<input id="login-password" name="login-password" type="password" value="" placeholder="Nhập mật khẩu" autocomplete="current-password" required>
               </label>
               <div class="between">
-                <label class="check">
-                  <input type="checkbox" name="remember">
-                  <span>Ghi nhớ đăng nhập</span>
-                </label>
+                <span></span>
                 <a class="text-link small" href="${pageContext.request.contextPath}/forgot-password">Quên mật khẩu?</a>
               </div>
               <button class="btn full" type="submit" data-action="login">Đăng nhập</button>
             </form>
-            <div class="or">HOẶC TIẾP TỤC VỚI</div>
-            <button class="btn secondary full" type="button" data-action="google-login" disabled title="Chức năng sẽ được tích hợp ở giai đoạn tiếp theo">Google</button>
             <p class="small muted">Bạn mới đến? <a class="text-link" href="${pageContext.request.contextPath}/register">Tạo tài khoản</a>
             </p>
           </section>
@@ -155,6 +151,8 @@
       </svg>
     </a>
       <script>window.GOCOOK_CONTEXT_PATH = "${pageContext.request.contextPath}";</script>
-    <script src="${pageContext.request.contextPath}/js/auth.js"></script>
+    <script src="${pageContext.request.contextPath}/js/auth.js?v=8"></script>
+      <script>window.GOCOOK_CONTEXT_PATH = window.GOCOOK_CONTEXT_PATH || "${pageContext.request.contextPath}";</script>
+    <script src="${pageContext.request.contextPath}/js/session-ui.js?v=8"></script>
   </body>
 </html>

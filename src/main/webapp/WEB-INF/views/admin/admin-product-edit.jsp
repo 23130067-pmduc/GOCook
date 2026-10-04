@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!doctype html>
 <html lang="vi">
   <head>
@@ -198,5 +199,7 @@ Thịt luộc</textarea>
         <path d="M7 8h9M7 12h6"></path>
       </svg>
     </a>
+      <script>window.GOCOOK_CONTEXT_PATH = window.GOCOOK_CONTEXT_PATH || "${pageContext.request.contextPath}";</script>
+    <script src="${pageContext.request.contextPath}/js/session-ui.js"></script>
   </body>
 </html>
