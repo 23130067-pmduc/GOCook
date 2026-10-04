@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="GO Cook — Đặt đầu bếp nấu ăn tại nhà. Ưu đãi &amp; khuyến mãi.">
+    <title>Ưu đãi &amp; khuyến mãi | GO Cook</title>
+    <link rel="icon" href="${pageContext.request.contextPath}/assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css">
+  </head>
+  <body>
+    <a class="skip" href="#main">Đến nội dung chính</a>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="${pageContext.request.contextPath}/" aria-label="GO Cook — Trang chủ">
+          <span class="brand-mark">
+            <svg class="icon" viewbox="0 0 24 24" aria-hidden="true">
+              <path d="M7 14a4 4 0 0 1-2-7 4 4 0 0 1 7-2 4 4 0 0 1 7 2 4 4 0 0 1-2 7v6H7z"></path>
+              <path d="M7 16h10M10 11v2m4-2v2"></path>
+            </svg>
+          </span>
+          <span>
+            <span class="brand-name">GO Cook</span>
+            <small>ĐẦU BẾP TẠI GIA</small>
+          </span>
+        </a>
+        <nav class="nav" aria-label="Điều hướng chính">
+          <a href="${pageContext.request.contextPath}/chefs">Khám phá đầu bếp</a>
+          <a href="${pageContext.request.contextPath}/menus">Thực đơn</a>
+          <a href="${pageContext.request.contextPath}/request">Tạo yêu cầu</a>
+          <a href="${pageContext.request.contextPath}/offers" aria-current="page">Ưu đãi</a>
+          <a href="${pageContext.request.contextPath}/help">Trợ giúp</a>
+        </nav>
+        <div class="header-actions">
+          <a class="icon-link" href="${pageContext.request.contextPath}/cart" aria-label="Giỏ hàng">
+            <svg class="icon" viewbox="0 0 24 24" aria-hidden="true">
+              <path d="M3 3h2l3 12h10l3-9H6"></path>
+              <circle cx="9" cy="20" r="1"></circle>
+              <circle cx="18" cy="20" r="1"></circle>
+            </svg>
+          </a>
+          <a class="login-link text-link small" href="${pageContext.request.contextPath}/login">Đăng nhập</a>
+          <a class="btn sm" href="${pageContext.request.contextPath}/chefs">Đặt đầu bếp</a>
+          <details class="mobile-menu">
+            <summary aria-label="Mở menu">
+              <svg class="icon" viewbox="0 0 24 24" aria-hidden="true">
+                <path d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </summary>
+            <nav aria-label="Điều hướng di động">
+              <a href="${pageContext.request.contextPath}/chefs">Khám phá đầu bếp</a>
+              <a href="${pageContext.request.contextPath}/menus">Thực đơn</a>
+              <a href="${pageContext.request.contextPath}/request">Tạo yêu cầu</a>
+              <a href="${pageContext.request.contextPath}/offers" aria-current="page">Ưu đãi</a>
+              <a href="${pageContext.request.contextPath}/help">Trợ giúp</a>
+              <a href="${pageContext.request.contextPath}/account">Tài khoản</a>
+              <a href="${pageContext.request.contextPath}/login">Đăng nhập</a>
+              <a href="${pageContext.request.contextPath}/pages">Tất cả màn hình</a>
+            </nav>
+          </details>
+        </div>
+      </div>
+    </header>
+    <main id="main">
+      <div class="container">
+        <div class="page-heading">
+          <nav class="breadcrumb" aria-label="Đường dẫn">
+            <a href="${pageContext.request.contextPath}/">Trang chủ</a>
+            <span>/</span>
+            <span>Thêm niềm vui cho bữa cơm nhà</span>
+          </nav>
+          <h1>Thêm niềm vui cho bữa cơm nhà</h1>
+          <p class="lead">Mã ưu đãi minh họa, chưa áp dụng cho giao dịch thực tế.</p>
+        </div>
+        <div class="dark-banner">
+          <p class="eyebrow">Bữa cơm đầu tiên</p>
+          <h2>Gặp đầu bếp mới.<br>Thêm một hương vị thân quen.</h2>
+          <p>Khám phá ưu đãi dành cho thành viên GO Cook.</p>
+        </div>
+        <section class="section grid grid-3">
+          <article class="voucher">
+            <span class="badge ">Thành viên mới</span>
+            <strong>Giảm 100k</strong>
+            <h3>Chào bữa cơm đầu tiên</h3>
+            <p class="muted small">Đơn từ 600.000đ · Áp dụng một lần cho tài khoản mới.</p>
+            <span class="code">GOFIRST100</span>
+            <button class="btn secondary" type="button" data-action="save-voucher" disabled title="Chức năng sẽ được tích hợp ở giai đoạn tiếp theo">Lưu mã ưu đãi</button>
+          </article>
+          <article class="voucher">
+            <span class="badge ">Cuối tuần</span>
+            <strong>Giảm 10%</strong>
+            <h3>Cả nhà cùng sum vầy</h3>
+            <p class="muted small">Tối đa 80.000đ · Đơn từ 500.000đ.</p>
+            <span class="code">SUMVAY10</span>
+            <button class="btn secondary" type="button" data-action="save-voucher" disabled title="Chức năng sẽ được tích hợp ở giai đoạn tiếp theo">Lưu mã ưu đãi</button>
+          </article>
+          <article class="voucher">
+            <span class="badge ">Món chay</span>
+            <strong>Giảm 50k</strong>
+            <h3>Một bữa ăn thanh lành</h3>
+            <p class="muted small">Thực đơn chay từ 400.000đ.</p>
+            <span class="code">CHAY50</span>
+            <button class="btn secondary" type="button" data-action="save-voucher" disabled title="Chức năng sẽ được tích hợp ở giai đoạn tiếp theo">Lưu mã ưu đãi</button>
+          </article>
+        </section>
+      </div>
+    </main>
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <a class="brand" href="${pageContext.request.contextPath}/" aria-label="GO Cook — Trang chủ">
+              <span class="brand-mark">
+                <svg class="icon" viewbox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 14a4 4 0 0 1-2-7 4 4 0 0 1 7-2 4 4 0 0 1 7 2 4 4 0 0 1-2 7v6H7z"></path>
+                  <path d="M7 16h10M10 11v2m4-2v2"></path>
+                </svg>
+              </span>
+              <span>
+                <span class="brand-name">GO Cook</span>
+                <small>ĐẦU BẾP TẠI GIA</small>
+              </span>
+            </a>
+            <p>Kết nối đầu bếp và gia đình Việt. Bữa cơm tươi ngon, được chăm chút ngay trong gian bếp của bạn.</p>
+          </div>
+          <div>
+            <h4>Khám phá GO Cook</h4>
+            <a class="" href="${pageContext.request.contextPath}/chefs">Đầu bếp tại gia</a>
+            <a class="" href="${pageContext.request.contextPath}/menus">Thực đơn có sẵn</a>
+            <a class="" href="${pageContext.request.contextPath}/request">Đặt theo ngân sách</a>
+            <a class="" href="${pageContext.request.contextPath}/offers">Ưu đãi hôm nay</a>
+          </div>
+          <div>
+            <h4>Dành cho bạn</h4>
+            <a class="" href="${pageContext.request.contextPath}/orders">Đơn đặt nấu</a>
+            <a class="" href="${pageContext.request.contextPath}/account">Tài khoản của tôi</a>
+            <a class="" href="${pageContext.request.contextPath}/become-chef">Trở thành đầu bếp</a>
+            <a class="" href="${pageContext.request.contextPath}/seller">Kênh người bán</a>
+          </div>
+          <div>
+            <h4>Hỗ trợ &amp; thông tin</h4>
+            <a class="" href="${pageContext.request.contextPath}/help">Câu hỏi thường gặp</a>
+            <a class="" href="${pageContext.request.contextPath}/chat">Liên hệ hỗ trợ</a>
+            <a class="" href="${pageContext.request.contextPath}/admin">Kênh quản trị</a>
+            <a class="" href="${pageContext.request.contextPath}/pages">Danh mục màn hình</a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>© 2026 GO Cook · Nhóm 2-1</span>
+          <span>Giao diện mẫu · Dữ liệu và hình ảnh minh họa · Chưa xử lý giao dịch</span>
+        </div>
+      </div>
+    </footer>
+    <a class="help-float" href="${pageContext.request.contextPath}/chat" aria-label="Mở trò chuyện">
+      <svg class="icon" viewbox="0 0 24 24" aria-hidden="true">
+        <path d="M20 15a3 3 0 0 1-3 3H9l-6 3V6a3 3 0 0 1 3-3h11a3 3 0 0 1 3 3z"></path>
+        <path d="M7 8h9M7 12h6"></path>
+      </svg>
+    </a>
+  </body>
+</html>

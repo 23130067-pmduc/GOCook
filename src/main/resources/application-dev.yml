@@ -1,0 +1,69 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+    import: optional:file:.env[.properties],optional:file:../.env[.properties]
+
+  datasource:
+    url: ${URL_DB:jdbc:postgresql://localhost:5432/db_user_service_lms}
+    username: ${USER_NAME_DB:postgres}
+    password: ${PASSWORD_DB}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000ms
+
+  data:
+    redis:
+      host: ${REDIS_HOST_DEV:localhost}
+      port: ${REDIS_PORT_DEV:6379}
+
+  rabbitmq:
+    port: ${RABBITMQ_PORT:5672}
+    host: ${RABBIT_MQ_DEV:localhost}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  threads:
+    virtual:
+      enabled: true
+
+jwt:
+  secretKey: ${JWT_SECRET_KEY}
+  accessTokenExpirationTime: ${JWT_ACCESS_TOKEN_EXPIRATION:259200000}
+  refreshTokenExpirationTime: ${JWT_REFRESH_TOKEN_EXPIRATION:2419200000}
+  resetPasswordTokenExpirationTime: ${JWT_RESET_PASSWORD_TOKEN_EXPIRATION:900000}
+
+rabbitmq:
+  exchange-name: ${USER_SERVICE_RABBITMQ_EXCHANGE_NAME:demo}
+  user-mail-routing-key: ${USER_SERVICE_RABBITMQ_USER_MAIL_ROUTING_KEY:demo}
+  user-mail-queue: ${USER_SERVICE_RABBITMQ_USER_MAIL_QUEUE:lms-queue}
+  cache-data-queue: ${RABBITMQ_CACHE_DATA_QUEUE:cache-data-queue}
+
+server:
+  port: ${USER_SERVICE_PORT:8083}
+
+cloudinary:
+  cloudinary-name: ${USER_SERVICE_CLOUDINARY_NAME:}
+  api-key: ${USER_SERVICE_CLOUDINARY_API_KEY:}
+  api-secret: ${USER_SERVICE_CLOUDINARY_API_SECRET:}
