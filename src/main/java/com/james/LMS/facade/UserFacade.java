@@ -1,0 +1,26 @@
+package com.james.LMS.facade;
+
+import com.james.LMS.request.*;
+import com.james.LMS.response.*;
+
+public interface UserFacade {
+  BaseResponse<Void> signUp(UpsertUserRequest upsertUserRequest);
+
+  BaseResponse<RefreshTokenResponse> refreshToken(RefreshTokenRequest refreshTokenRequest);
+
+  BaseResponse<Void> logout();
+
+  BaseResponse<Void> resetPassword(ResetPasswordRequest resetPasswordRequest);
+
+  BaseResponse<ForgotPasswordResponse> forgotPassword(ForgotPasswordRequest forgotPasswordRequest);
+
+  BaseResponse<VerifyOTPResponse> verify(VerifyOTPRequest verifyOTPRequest);
+
+  BaseResponse<UserDetailResponse> findProfile();
+
+  BaseResponse<UserDetailResponse> findDetailById(Long id);
+
+  BaseResponse<String> uploadFile(byte[] bytes);
+
+  BaseResponse<Void> updateProfile(UpdateUserProfileRequest updateUserProfileRequest);
+}
