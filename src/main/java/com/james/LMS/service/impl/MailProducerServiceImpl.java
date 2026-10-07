@@ -25,7 +25,7 @@ public class MailProducerServiceImpl implements MailProducerService {
 
   @Override
   public void send(MessageMailDTO messageMailDTO) {
-    log.info("Producer : Messages mail {}", messageMailDTO);
+    log.info("Queue mail message for {}", messageMailDTO.getTo());
     this.rabbitTemplate.convertAndSend(exchange, userMailRoutingKey, messageMailDTO);
   }
 }

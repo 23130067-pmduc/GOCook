@@ -1,11 +1,13 @@
 package com.james.LMS.util;
 
-import java.util.Random;
+import java.security.SecureRandom;
 
-public class OTPGeneratorUtil {
+public final class OTPGeneratorUtil {
+  private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
+  private OTPGeneratorUtil() {}
+
   public static String generaRandomCode() {
-    Random random = new Random();
-    int code = random.nextInt(9999);
-    return String.format("%04d", code);
+    return String.format("%06d", SECURE_RANDOM.nextInt(1_000_000));
   }
 }

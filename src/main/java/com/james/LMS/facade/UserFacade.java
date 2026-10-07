@@ -6,6 +6,10 @@ import com.james.LMS.response.*;
 public interface UserFacade {
   BaseResponse<Void> signUp(UpsertUserRequest upsertUserRequest);
 
+  BaseResponse<Void> verifyEmail(VerifyEmailRequest verifyEmailRequest);
+
+  BaseResponse<Void> resendVerification(ResendVerificationRequest resendVerificationRequest);
+
   BaseResponse<RefreshTokenResponse> refreshToken(RefreshTokenRequest refreshTokenRequest);
 
   BaseResponse<Void> logout();

@@ -29,6 +29,10 @@ public class User extends BaseEntity {
   @Column(name = "avatar_url")
   private String avatarUrl;
 
+  @Column(name = "email_verified", nullable = false)
+  @Builder.Default
+  private boolean emailVerified = false;
+
   @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinTable(
       name = "user_roles",
@@ -39,6 +43,10 @@ public class User extends BaseEntity {
 
   public void changePassword(String newPasswordEncoded) {
     this.password = newPasswordEncoded;
+  }
+
+  public void verifyEmail() {
+    this.emailVerified = true;
   }
 
   public void addRole(Role role) {

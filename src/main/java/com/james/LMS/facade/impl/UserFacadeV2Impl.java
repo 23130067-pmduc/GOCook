@@ -5,6 +5,7 @@ import com.james.LMS.config.SecurityUserDetails;
 import com.james.LMS.entity.Role;
 import com.james.LMS.enums.ErrorCode;
 import com.james.LMS.enums.TokenType;
+import com.james.LMS.exception.PermissionDeniedException;
 import com.james.LMS.facade.UserFacadeV2;
 import com.james.LMS.request.LoginRequest;
 import com.james.LMS.response.BaseResponse;
@@ -69,6 +70,10 @@ public class UserFacadeV2Impl implements UserFacadeV2 {
 
     if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
       throw new BadCredentialsException(ErrorCode.INVALID_CREDENTIALS.getMessage());
+    }
+
+    if (!user.isEmailVerified()) {
+      throw new PermissionDeniedException(ErrorCode.EMAIL_NOT_VERIFIED);
     }
 
     List<Role> roles = roleService.findAllByUserId(user.getId());

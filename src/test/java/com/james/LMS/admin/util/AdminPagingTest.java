@@ -1,8 +1,10 @@
 package com.james.LMS.admin.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Sort;
 
 class AdminPagingTest {
 
@@ -20,5 +22,17 @@ class AdminPagingTest {
 
     assertEquals(2, pageable.getPageNumber());
     assertEquals(AdminPaging.MAX_PAGE_SIZE, pageable.getPageSize());
+  }
+
+  @Test
+  void shouldApplySortWhenProvided() {
+    var pageable =
+        AdminPaging.of(
+            0,
+            10,
+            Sort.by(Sort.Direction.DESC, "scheduledAt"));
+
+    var scheduledAt = pageable.getSort().getOrderFor("scheduledAt");
+    assertTrue(scheduledAt != null && scheduledAt.isDescending());
   }
 }
