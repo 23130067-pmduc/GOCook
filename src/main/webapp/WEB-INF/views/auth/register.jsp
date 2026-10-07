@@ -96,7 +96,7 @@
               </label>
               <button class="btn full" type="submit" data-action="register">Tạo tài khoản</button>
             </form>
-            <a class="text-link small" href="${pageContext.request.contextPath}/verify-email">Xem thông tin email xác nhận đăng ký</a>
+            <p class="small muted">Sau khi tạo tài khoản, bạn cần nhập mã OTP gửi qua email để kích hoạt tài khoản.</p>
           </section>
         </div>
       </div>
@@ -154,8 +154,8 @@
       </svg>
     </a>
       <script>window.GOCOOK_CONTEXT_PATH = "${pageContext.request.contextPath}";</script>
-    <script src="${pageContext.request.contextPath}/js/auth.js?v=8"></script>
+    <script src="${pageContext.request.contextPath}/js/auth.js?v=9"></script>
       <script>window.GOCOOK_CONTEXT_PATH = window.GOCOOK_CONTEXT_PATH || "${pageContext.request.contextPath}";</script>
-    <script src="${pageContext.request.contextPath}/js/session-ui.js?v=8"></script>
+    <script src="${pageContext.request.contextPath}/js/session-ui.js?v=9"></script>
   </body>
 </html>

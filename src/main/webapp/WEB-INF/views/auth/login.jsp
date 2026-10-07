@@ -151,8 +151,8 @@
       </svg>
     </a>
       <script>window.GOCOOK_CONTEXT_PATH = "${pageContext.request.contextPath}";</script>
-    <script src="${pageContext.request.contextPath}/js/auth.js?v=8"></script>
+    <script src="${pageContext.request.contextPath}/js/auth.js?v=9"></script>
       <script>window.GOCOOK_CONTEXT_PATH = window.GOCOOK_CONTEXT_PATH || "${pageContext.request.contextPath}";</script>
-    <script src="${pageContext.request.contextPath}/js/session-ui.js?v=8"></script>
+    <script src="${pageContext.request.contextPath}/js/session-ui.js?v=9"></script>
   </body>
 </html>

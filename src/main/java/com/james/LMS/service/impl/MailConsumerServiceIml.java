@@ -19,7 +19,7 @@ public class MailConsumerServiceIml implements MailConsumerService {
   @RabbitHandler
   @RabbitListener(queues = {"${rabbitmq.user-mail-queue}"})
   public void consume(MessageMailDTO messageMailDTO) {
-    log.info("Consumer : Messages mail {}", messageMailDTO);
+    log.info("Send queued mail to {}", messageMailDTO.getTo());
     this.emailService.send(messageMailDTO);
   }
 }

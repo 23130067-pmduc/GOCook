@@ -35,9 +35,12 @@ public class PublicEndpointsValidatorUtil {
                   "/api/v1/users/demo",
                   "/api/v1/users/login",
                   "/api/v1/users/sign-up",
+                  "/api/v1/users/verify-email",
+                  "/api/v1/users/resend-verification",
                   "/api/v1/users/forgot-password",
                   "/api/v1/users/refresh-token",
                   "/api/v1/users/verify-otp",
+                  "/api/v1/users/reset-password",
                   "/api/v2/users/login");
 
   private static final List<String> PUBLIC_PREFIXES =

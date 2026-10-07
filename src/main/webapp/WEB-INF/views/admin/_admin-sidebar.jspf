@@ -1,3 +1,4 @@
+<%@ page pageEncoding="UTF-8" %>
 <nav class="card side-nav" aria-label="Quản lý">
   <p class="eyebrow">Quản trị hệ thống</p>
   <a href="${pageContext.request.contextPath}/admin">Tổng quan</a>

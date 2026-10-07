@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @Getter
 public class ForgotPasswordResponse {
-  @Builder.Default private String message = "Retry after 10s";
+  @Builder.Default
+  private String message = "OTP sent. You can request another code after 60 seconds.";
 }

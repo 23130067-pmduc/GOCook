@@ -44,6 +44,23 @@ public class UserController {
     return this.userFacade.signUp(upsertUserRequest);
   }
 
+
+  @PostMapping("/verify-email")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(tags = {"User APIs"})
+  public BaseResponse<Void> verifyEmail(
+      @Valid @RequestBody VerifyEmailRequest verifyEmailRequest) {
+    return this.userFacade.verifyEmail(verifyEmailRequest);
+  }
+
+  @PostMapping("/resend-verification")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(tags = {"User APIs"})
+  public BaseResponse<Void> resendVerification(
+      @Valid @RequestBody ResendVerificationRequest resendVerificationRequest) {
+    return this.userFacade.resendVerification(resendVerificationRequest);
+  }
+
   @PostMapping("/refresh-token")
   @ResponseStatus(HttpStatus.OK)
   @Operation(tags = {"User APIs"})
@@ -83,8 +100,6 @@ public class UserController {
   @PostMapping("/reset-password")
   @ResponseStatus(HttpStatus.OK)
   @Operation(tags = {"User APIs"})
-  @SecurityRequirement(name = SecurityConfig.SECURITY_REQUIREMENT)
-  @PreAuthorize("isAuthenticated()")
   public BaseResponse<Void> resetPassword(
       @Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
     return this.userFacade.resetPassword(resetPasswordRequest);
@@ -110,7 +125,7 @@ public class UserController {
   @ResponseStatus(HttpStatus.OK)
   @Operation(tags = {"User APIs"})
   @SecurityRequirement(name = SecurityConfig.SECURITY_REQUIREMENT)
-  @PreAuthorize("hasAuthority('ROLE_USER')")
+  @PreAuthorize("isAuthenticated()")
   public BaseResponse<UserDetailResponse> findProfile() {
     return this.userFacade.findProfile();
   }

@@ -1,3 +1,4 @@
+<%@ page pageEncoding="UTF-8" %>
 <form class="card stack" method="post" action="${pageContext.request.contextPath}${formAction}">
   <c:if test="${not empty product.id}"><input type="hidden" name="id" value="${product.id}"></c:if>
   <label class="field">Tên thực đơn

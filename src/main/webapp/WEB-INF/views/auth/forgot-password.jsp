@@ -72,14 +72,14 @@
             </svg>
           </span>
           <h1>Lấy lại mật khẩu</h1>
-          <p class="muted">Nhập email đã đăng ký để nhận liên kết đặt lại mật khẩu.</p>
+          <p class="muted">Nhập email đã đăng ký. GO Cook sẽ gửi mã OTP 6 chữ số để xác minh yêu cầu đặt lại mật khẩu.</p>
           <form class="stack">
-            <label class="field" for="recovery-email">Email đăng ký<input id="recovery-email" name="recovery-email" type="email" value="" placeholder="ban@example.com" autocomplete="email" required>
+            <label class="field" for="recovery-email">Email đăng ký
+              <input id="recovery-email" name="recovery-email" type="email" placeholder="ban@example.com" autocomplete="email" required>
             </label>
-            <button class="btn" type="button" data-action="forgot-password" disabled title="Chức năng sẽ được tích hợp ở giai đoạn tiếp theo">Gửi liên kết khôi phục</button>
+            <button class="btn" type="submit" data-action="forgot-password">Gửi mã OTP</button>
           </form>
           <a class="text-link" href="${pageContext.request.contextPath}/login">Về đăng nhập</a>
-          <a class="text-link small" href="${pageContext.request.contextPath}/reset-password">Xem form đặt mật khẩu mới</a>
         </section>
       </div>
     </main>
@@ -135,7 +135,8 @@
         <path d="M7 8h9M7 12h6"></path>
       </svg>
     </a>
-      <script>window.GOCOOK_CONTEXT_PATH = window.GOCOOK_CONTEXT_PATH || "${pageContext.request.contextPath}";</script>
-    <script src="${pageContext.request.contextPath}/js/session-ui.js"></script>
+    <script>window.GOCOOK_CONTEXT_PATH = "${pageContext.request.contextPath}";</script>
+    <script src="${pageContext.request.contextPath}/js/auth.js?v=9"></script>
+    <script src="${pageContext.request.contextPath}/js/session-ui.js?v=9"></script>
   </body>
 </html>

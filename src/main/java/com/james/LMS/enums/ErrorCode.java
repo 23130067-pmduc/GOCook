@@ -18,7 +18,10 @@ public enum ErrorCode {
   INSTRUCTOR_ALREADY_EXISTS("1009", "Instructor already exists"),
   FILE_ERROR_UPLOAD("1010", "Upload error"),
   COMPANY_ADMIN_ROLE_ALREADY_EXISTS("1011", "Company role already exists"),
-  INVALID_CREDENTIALS("1012", "Email or password is incorrect");
+  INVALID_CREDENTIALS("1012", "Email or password is incorrect"),
+  EMAIL_NOT_VERIFIED("1013", "Email has not been verified"),
+  EMAIL_ALREADY_VERIFIED("1014", "Email has already been verified"),
+  SPAM_EMAIL_VERIFICATION("1015", "Please wait before requesting another verification code");
 
   private final String code;
   private final String message;

@@ -72,13 +72,31 @@
             </svg>
           </span>
           <h1>Đặt mật khẩu mới</h1>
-          <form class="stack">
-            <label class="field" for="new-password">Mật khẩu mới<input id="new-password" name="new-password" type="password" value="" placeholder="Tối thiểu 8 ký tự" autocomplete="new-password" minlength="8">
-            </label>
-            <label class="field" for="password-confirmation">Xác nhận mật khẩu<input id="password-confirmation" name="password-confirmation" type="password" value="" placeholder="Nhập lại mật khẩu" autocomplete="new-password">
-            </label>
-            <button class="btn" type="button" data-action="reset-password" disabled title="Chức năng sẽ được tích hợp ở giai đoạn tiếp theo">Lưu mật khẩu mới</button>
-          </form>
+          <div id="reset-otp-step" class="stack">
+            <p class="muted">Nhập mã OTP đã được gửi tới email của bạn.</p>
+            <form class="stack">
+              <label class="field" for="reset-email">Email
+                <input id="reset-email" name="reset-email" type="email" placeholder="ban@example.com" autocomplete="email" required>
+              </label>
+              <label class="field" for="reset-otp">Mã OTP
+                <input id="reset-otp" name="reset-otp" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="one-time-code" required>
+              </label>
+              <button class="btn" type="submit" data-action="verify-reset-otp">Xác minh OTP</button>
+            </form>
+          </div>
+          <div id="reset-password-step" class="stack" hidden>
+            <p class="muted">OTP hợp lệ. Hãy nhập mật khẩu mới.</p>
+            <form class="stack">
+              <label class="field" for="new-password">Mật khẩu mới
+                <input id="new-password" name="new-password" type="password" placeholder="Tối thiểu 8 ký tự" autocomplete="new-password" minlength="8" required>
+              </label>
+              <label class="field" for="password-confirmation">Xác nhận mật khẩu
+                <input id="password-confirmation" name="password-confirmation" type="password" placeholder="Nhập lại mật khẩu" autocomplete="new-password" minlength="8" required>
+              </label>
+              <button class="btn" type="submit" data-action="reset-password">Lưu mật khẩu mới</button>
+            </form>
+          </div>
+          <a class="text-link" href="${pageContext.request.contextPath}/forgot-password">Gửi lại mã khôi phục</a>
           <a class="text-link" href="${pageContext.request.contextPath}/login">Về đăng nhập</a>
         </section>
       </div>
@@ -135,7 +153,8 @@
         <path d="M7 8h9M7 12h6"></path>
       </svg>
     </a>
-      <script>window.GOCOOK_CONTEXT_PATH = window.GOCOOK_CONTEXT_PATH || "${pageContext.request.contextPath}";</script>
-    <script src="${pageContext.request.contextPath}/js/session-ui.js"></script>
+    <script>window.GOCOOK_CONTEXT_PATH = "${pageContext.request.contextPath}";</script>
+    <script src="${pageContext.request.contextPath}/js/auth.js?v=9"></script>
+    <script src="${pageContext.request.contextPath}/js/session-ui.js?v=9"></script>
   </body>
 </html>

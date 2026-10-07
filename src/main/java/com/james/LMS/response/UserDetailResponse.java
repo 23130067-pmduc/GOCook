@@ -1,6 +1,7 @@
 package com.james.LMS.response;
 
 import java.time.LocalDate;
+import java.util.List;
 import lombok.*;
 
 @Builder
@@ -18,4 +19,5 @@ public class UserDetailResponse {
   private String instructorAbout;
   private LocalDate createdAt;
   private Long channelId;
+  private List<String> roles;
 }

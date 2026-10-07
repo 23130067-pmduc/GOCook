@@ -17,7 +17,6 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,10 +26,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class UserFacadeImpl implements UserFacade {
+  private static final int OTP_TTL_MINUTES = 10;
+  private static final int OTP_RESEND_COOLDOWN_SECONDS = 60;
+  private static final int RESET_TOKEN_TTL_MINUTES = 15;
+
   private final UserService userService;
   private final JwtService jwtService;
   private final CacheService cacheService;
-  private final AuthenticationManager authenticationManager;
   private final PasswordEncoder passwordEncoder;
   private final RoleService roleService;
   private final MailProducerService mailProducerService;
@@ -39,7 +41,7 @@ public class UserFacadeImpl implements UserFacade {
   @Override
   @Transactional
   public BaseResponse<Void> signUp(UpsertUserRequest upsertUserRequest) {
-    String email = upsertUserRequest.getEmail().trim().toLowerCase(Locale.ROOT);
+    String email = normalizeEmail(upsertUserRequest.getEmail());
 
     boolean isExistUser = this.userService.existsUserByEmail(email);
     if (isExistUser) throw new UserAlreadyExistException(ErrorCode.USER_ALREADY_EXISTS);
@@ -50,6 +52,7 @@ public class UserFacadeImpl implements UserFacade {
             .username(upsertUserRequest.getUsername().trim())
             .email(email)
             .password(passwordEncoded)
+            .emailVerified(false)
             .build();
 
     Role userRole =
@@ -59,8 +62,53 @@ public class UserFacadeImpl implements UserFacade {
     user.addRole(userRole);
 
     this.userService.save(user);
+    sendEmailVerificationCode(user, false);
 
-    this.mailProducerService.send(MailUtil.buildMessageMailDTOForNewUser(user.getEmail()));
+    return BaseResponse.ok();
+  }
+
+  @Override
+  @Transactional
+  public BaseResponse<Void> verifyEmail(VerifyEmailRequest verifyEmailRequest) {
+    String email = normalizeEmail(verifyEmailRequest.getEmail());
+    User user =
+        userService
+            .findByEmail(email)
+            .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND));
+
+    if (user.isEmailVerified()) return BaseResponse.ok();
+
+    String otpKey = String.format(EmailVerificationKey.OTP_KEY.getContent(), email);
+    Object cachedOtp = cacheService.retrieve(otpKey);
+
+    if (cachedOtp == null) throw new OTPTimeOutException(ErrorCode.OTP_TIMEOUT);
+    if (!String.valueOf(cachedOtp).equals(verifyEmailRequest.getOtp())) {
+      throw new PermissionDeniedException(ErrorCode.NOT_MATCHED_OTP);
+    }
+
+    user.verifyEmail();
+    userService.save(user);
+
+    cacheService.delete(otpKey);
+    cacheService.delete(String.format(EmailVerificationKey.RETRY_KEY.getContent(), email));
+
+    return BaseResponse.ok();
+  }
+
+  @Override
+  public BaseResponse<Void> resendVerification(
+      ResendVerificationRequest resendVerificationRequest) {
+    String email = normalizeEmail(resendVerificationRequest.getEmail());
+    User user =
+        userService
+            .findByEmail(email)
+            .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND));
+
+    if (user.isEmailVerified()) {
+      throw new PermissionDeniedException(ErrorCode.EMAIL_ALREADY_VERIFIED);
+    }
+
+    sendEmailVerificationCode(user, true);
     return BaseResponse.ok();
   }
 
@@ -99,71 +147,97 @@ public class UserFacadeImpl implements UserFacade {
   @Override
   @Transactional
   public BaseResponse<Void> resetPassword(ResetPasswordRequest resetPasswordRequest) {
-    var isValidPassword =
+    boolean isValidPassword =
         resetPasswordRequest.getNewPassword().equals(resetPasswordRequest.getConfirmPassword());
     if (!isValidPassword) throw new PermissionDeniedException(ErrorCode.NOT_MATCHED_PASSWORD);
 
-    SecurityUserDetails principal =
-        (SecurityUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    String resetPasswordToken = resetPasswordRequest.getResetPasswordToken();
+    if (!jwtService.validateToken(resetPasswordToken)) {
+      throw new InvalidTokenException(ErrorCode.JWT_INVALID);
+    }
+
+    String email = normalizeEmail(jwtService.getEmailFromJwtToken(resetPasswordToken));
+    String resetTokenKey = String.format(ResetPasswordKey.RESET_TOKEN_KEY.getContent(), email);
+    Object cachedResetToken = cacheService.retrieve(resetTokenKey);
+
+    if (cachedResetToken == null || !String.valueOf(cachedResetToken).equals(resetPasswordToken)) {
+      throw new InvalidTokenException(ErrorCode.JWT_INVALID);
+    }
 
     User user =
         userService
-            .findByEmail(principal.getUsername())
+            .findByEmail(email)
             .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND));
 
-    var newPasswordEncoded = passwordEncoder.encode(resetPasswordRequest.getNewPassword());
+    String newPasswordEncoded = passwordEncoder.encode(resetPasswordRequest.getNewPassword());
     user.changePassword(newPasswordEncoded);
-
     userService.save(user);
+
+    cacheService.delete(resetTokenKey);
+    cacheService.delete(String.format(ResetPasswordKey.OTP_KEY.getContent(), email));
+    cacheService.delete(String.format(ResetPasswordKey.TIMEOUT_RETRY_KEY.getContent(), email));
+    cacheService.delete(String.format(TokenType.ACCESS_TOKEN.getCacheKeyTemplate(), email));
+    cacheService.delete(String.format(TokenType.REFRESH_TOKEN.getCacheKeyTemplate(), email));
+
     return BaseResponse.ok();
   }
 
   @Override
   public BaseResponse<ForgotPasswordResponse> forgotPassword(
       ForgotPasswordRequest forgotPasswordRequest) {
-    String timeOutRetryKey =
-        String.format(
-            ResetPasswordKey.TIMEOUT_RETRY_KEY.getContent(), forgotPasswordRequest.getEmail());
-    boolean isValidForgotPassword = this.cacheService.hasKey(timeOutRetryKey);
-
-    if (isValidForgotPassword)
-      throw new SpamForgotPasswordException(ErrorCode.SPAM_FORGOT_PASSWORD);
-
+    String email = normalizeEmail(forgotPasswordRequest.getEmail());
     User user =
         userService
-            .findByEmail(forgotPasswordRequest.getEmail())
+            .findByEmail(email)
             .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND));
 
+    if (!user.isEmailVerified()) {
+      throw new PermissionDeniedException(ErrorCode.EMAIL_NOT_VERIFIED);
+    }
+
+    String timeOutRetryKey =
+        String.format(ResetPasswordKey.TIMEOUT_RETRY_KEY.getContent(), email);
+    if (cacheService.hasKey(timeOutRetryKey)) {
+      throw new SpamForgotPasswordException(ErrorCode.SPAM_FORGOT_PASSWORD);
+    }
+
+    cacheService.delete(String.format(ResetPasswordKey.RESET_TOKEN_KEY.getContent(), email));
+
     String otp = OTPGeneratorUtil.generaRandomCode();
-    MessageMailDTO messageMailDTO = MailUtil.buildMessageMailDTOForOTP(user.getEmail(), otp);
+    MessageMailDTO messageMailDTO = MailUtil.buildMessageMailDTOForOTP(email, otp);
+    String otpKey = String.format(ResetPasswordKey.OTP_KEY.getContent(), email);
 
-    this.mailProducerService.send(messageMailDTO);
-    String otpKey = String.format(ResetPasswordKey.OTP_KEY.getContent(), user.getEmail());
+    cacheService.store(otpKey, otp, OTP_TTL_MINUTES, TimeUnit.MINUTES);
+    cacheService.store(
+        timeOutRetryKey, email, OTP_RESEND_COOLDOWN_SECONDS, TimeUnit.SECONDS);
+    mailProducerService.send(messageMailDTO);
 
-    this.cacheService.store(
-        timeOutRetryKey, forgotPasswordRequest.getEmail(), 10, TimeUnit.MINUTES);
-    this.cacheService.store(otpKey, otp, 10, TimeUnit.MINUTES);
     return BaseResponse.build(ForgotPasswordResponse.builder().build(), true);
   }
 
   @Override
   public BaseResponse<VerifyOTPResponse> verify(VerifyOTPRequest verifyOTPRequest) {
+    String email = normalizeEmail(verifyOTPRequest.getEmail());
     User user =
         userService
-            .findByEmail(verifyOTPRequest.getEmail())
+            .findByEmail(email)
             .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND));
 
     String otpKey = String.format(ResetPasswordKey.OTP_KEY.getContent(), user.getEmail());
+    Object cachedOtp = cacheService.retrieve(otpKey);
 
-    Object otp = this.cacheService.retrieve(otpKey);
+    if (cachedOtp == null) throw new OTPTimeOutException(ErrorCode.OTP_TIMEOUT);
+    if (!String.valueOf(cachedOtp).equals(verifyOTPRequest.getOtp())) {
+      throw new PermissionDeniedException(ErrorCode.NOT_MATCHED_OTP);
+    }
 
-    boolean isValidOTP = otp != null;
-    if (!isValidOTP) throw new OTPTimeOutException(ErrorCode.OTP_TIMEOUT);
+    String resetPasswordToken = jwtService.generateResetPasswordToken(user.getEmail());
+    String resetTokenKey =
+        String.format(ResetPasswordKey.RESET_TOKEN_KEY.getContent(), user.getEmail());
 
-    boolean isMatchedOtp = otp.equals(verifyOTPRequest.getOtp());
-    if (!isMatchedOtp) throw new PermissionDeniedException(ErrorCode.NOT_MATCHED_OTP);
-
-    String resetPasswordToken = this.jwtService.generateResetPasswordToken(user.getEmail());
+    cacheService.store(
+        resetTokenKey, resetPasswordToken, RESET_TOKEN_TTL_MINUTES, TimeUnit.MINUTES);
+    cacheService.delete(otpKey);
 
     return BaseResponse.build(
         VerifyOTPResponse.builder().resetPasswordToken(resetPasswordToken).build(), true);
@@ -186,6 +260,10 @@ public class UserFacadeImpl implements UserFacade {
             .email(user.getEmail())
             .avatarUrl(user.getAvatarUrl())
             .createdAt(DateUtil.convertToLocalDate(user.getCreatedAt()))
+            .roles(
+                principal.getAuthorities().stream()
+                    .map(authority -> authority.getAuthority())
+                    .toList())
             .build();
     return BaseResponse.build(userDetailResponse, true);
   }
@@ -236,5 +314,26 @@ public class UserFacadeImpl implements UserFacade {
 
     this.userService.save(user);
     return BaseResponse.ok();
+  }
+
+  private void sendEmailVerificationCode(User user, boolean enforceCooldown) {
+    String email = normalizeEmail(user.getEmail());
+    String retryKey = String.format(EmailVerificationKey.RETRY_KEY.getContent(), email);
+
+    if (enforceCooldown && cacheService.hasKey(retryKey)) {
+      throw new PermissionDeniedException(ErrorCode.SPAM_EMAIL_VERIFICATION);
+    }
+
+    String otp = OTPGeneratorUtil.generaRandomCode();
+    String otpKey = String.format(EmailVerificationKey.OTP_KEY.getContent(), email);
+
+    cacheService.store(otpKey, otp, OTP_TTL_MINUTES, TimeUnit.MINUTES);
+    cacheService.store(
+        retryKey, email, OTP_RESEND_COOLDOWN_SECONDS, TimeUnit.SECONDS);
+    mailProducerService.send(MailUtil.buildMessageMailDTOForEmailVerification(email, otp));
+  }
+
+  private String normalizeEmail(String email) {
+    return email.trim().toLowerCase(Locale.ROOT);
   }
 }

@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,15 +34,53 @@ public class AdminOrderService {
       throw new IllegalArgumentException("Ngày bắt đầu không thể sau ngày kết thúc.");
     }
 
+    String normalizedQuery = normalize(query).toLowerCase(Locale.ROOT);
+    AdminOrderStatus parsedStatus = parseStatus(status);
     LocalDateTime fromDate = from == null ? null : from.atStartOfDay();
     LocalDateTime toExclusive = to == null ? null : to.plusDays(1).atStartOfDay();
 
-    return orderRepository.search(
-        normalize(query),
-        parseStatus(status),
-        fromDate,
-        toExclusive,
-        AdminPaging.of(page, size));
+    Specification<AdminOrder> spec = Specification.where(null);
+
+    if (!normalizedQuery.isBlank()) {
+      String pattern = "%" + normalizedQuery + "%";
+      spec =
+          spec.and(
+              (root, criteriaQuery, cb) ->
+                  cb.or(
+                      cb.like(cb.lower(root.get("orderCode")), pattern),
+                      cb.like(cb.lower(root.get("customerName")), pattern),
+                      cb.like(cb.lower(root.get("customerEmail")), pattern),
+                      cb.like(cb.lower(root.get("productName")), pattern),
+                      cb.like(cb.lower(root.get("chefName")), pattern)));
+    }
+
+    if (parsedStatus != null) {
+      spec =
+          spec.and(
+              (root, criteriaQuery, cb) -> cb.equal(root.get("status"), parsedStatus));
+    }
+
+    if (fromDate != null) {
+      spec =
+          spec.and(
+              (root, criteriaQuery, cb) ->
+                  cb.greaterThanOrEqualTo(root.get("scheduledAt"), fromDate));
+    }
+
+    if (toExclusive != null) {
+      spec =
+          spec.and(
+              (root, criteriaQuery, cb) ->
+                  cb.lessThan(root.get("scheduledAt"), toExclusive));
+    }
+
+    Pageable pageable =
+        AdminPaging.of(
+            page,
+            size,
+            Sort.by(Sort.Direction.DESC, "scheduledAt"));
+
+    return orderRepository.findAll(spec, pageable);
   }
 
   @Transactional(readOnly = true)

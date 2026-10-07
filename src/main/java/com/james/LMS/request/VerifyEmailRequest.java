@@ -7,15 +7,15 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-public class VerifyOTPRequest {
-  @NotBlank
-  @Pattern(regexp = "\\d{6}", message = "OTP must contain 6 digits")
-  private String otp;
-
+public class VerifyEmailRequest {
   @Email(message = "Email invalid")
   @NotBlank
   private String email;
+
+  @NotBlank
+  @Pattern(regexp = "\\d{6}", message = "OTP must contain 6 digits")
+  private String otp;
 }

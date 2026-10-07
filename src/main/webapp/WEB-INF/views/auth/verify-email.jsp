@@ -67,13 +67,23 @@
         <section class="card empty">
           <span class="icon-box">
             <svg class="icon" viewbox="0 0 24 24" aria-hidden="true">
-              <path d="m5 12 4 4L19 6"></path>
+              <path d="m12 3 8 3v6c0 4-8 9-8 9s-8-5-8-9V6z"></path>
+              <path d="m8 12 3 3 5-6"></path>
             </svg>
           </span>
-          <span class="badge ">Email xác nhận đăng ký</span>
-          <h1>Kiểm tra hộp thư của bạn</h1>
-          <p class="muted">Sau khi đăng ký, GO Cook sẽ gửi email xác nhận đăng ký đến địa chỉ của bạn khi SMTP đã được cấu hình.</p>
-          <p class="small muted">Email hiện là thư xác nhận đăng ký; tài khoản không cần bấm liên kết kích hoạt.</p>
+          <span class="badge">Xác nhận email</span>
+          <h1>Nhập mã xác nhận</h1>
+          <p class="muted">GO Cook đã gửi mã OTP 6 chữ số đến email đăng ký. Mã có hiệu lực trong 10 phút.</p>
+          <form class="stack">
+            <label class="field" for="verify-email-address">Email
+              <input id="verify-email-address" name="verify-email-address" type="email" placeholder="ban@example.com" autocomplete="email" required>
+            </label>
+            <label class="field" for="verify-email-otp">Mã OTP
+              <input id="verify-email-otp" name="verify-email-otp" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="one-time-code" required>
+            </label>
+            <button class="btn" type="submit" data-action="verify-email">Xác nhận email</button>
+          </form>
+          <button class="text-link" type="button" data-action="resend-verification">Gửi lại mã xác nhận</button>
           <a class="text-link" href="${pageContext.request.contextPath}/login">Về đăng nhập</a>
         </section>
       </div>
@@ -130,7 +140,8 @@
         <path d="M7 8h9M7 12h6"></path>
       </svg>
     </a>
-      <script>window.GOCOOK_CONTEXT_PATH = window.GOCOOK_CONTEXT_PATH || "${pageContext.request.contextPath}";</script>
-    <script src="${pageContext.request.contextPath}/js/session-ui.js"></script>
+    <script>window.GOCOOK_CONTEXT_PATH = "${pageContext.request.contextPath}";</script>
+    <script src="${pageContext.request.contextPath}/js/auth.js?v=9"></script>
+    <script src="${pageContext.request.contextPath}/js/session-ui.js?v=9"></script>
   </body>
 </html>

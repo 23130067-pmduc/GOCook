@@ -5,6 +5,7 @@ CREATE TABLE "users"
     "password"   varchar(255)          NOT NULL,
     "email"      varchar(255) UNIQUE   NOT NULL,
     "avatar_url" varchar(255),
+    "email_verified" boolean             NOT NULL DEFAULT false,
     "is_active"  boolean               NOT NULL DEFAULT true,
     "version"    bigint                NOT NULL DEFAULT 0,
     "created_at" bigint                NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::bigint,
