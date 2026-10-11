@@ -399,3 +399,18 @@ button.text-link:disabled { opacity: .55; cursor: not-allowed; }
 .auth-message { padding: 12px 14px; border-radius: 12px; border: 1px solid #e23b2e; background: #fff1ef; }
 .auth-message.success { border-color: #1b9858; background: #eefbf4; }
 .chart .bar { min-height: 4px; }
+
+/* Admin analytics */
+
+.admin-chart-scroll {
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.admin-revenue-chart {
+  min-width: 680px;
+}
+
+.admin-revenue-chart .chart-col {
+  min-width: 54px;
+}
