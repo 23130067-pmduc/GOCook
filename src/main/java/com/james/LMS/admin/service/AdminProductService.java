@@ -1,8 +1,8 @@
 package com.james.LMS.admin.service;
 
-import com.james.LMS.admin.entity.AdminProduct;
-import com.james.LMS.admin.enums.AdminProductStatus;
-import com.james.LMS.admin.repository.AdminProductRepository;
+import com.james.LMS.entity.Product;
+import com.james.LMS.enums.ProductStatus;
+import com.james.LMS.repository.ProductRepository;
 import com.james.LMS.admin.util.AdminPaging;
 import java.math.BigDecimal;
 import java.util.LinkedHashSet;
@@ -20,10 +20,10 @@ public class AdminProductService {
   private static final List<String> DEFAULT_CATEGORIES =
       List.of("Món miền Nam", "Món miền Bắc", "Món miền Trung", "Món chay", "Khác");
 
-  private final AdminProductRepository productRepository;
+  private final ProductRepository productRepository;
 
   @Transactional(readOnly = true)
-  public Page<AdminProduct> search(
+  public Page<Product> search(
       String query, String category, String status, int page, int size) {
     return productRepository.search(
         normalize(query),
@@ -33,7 +33,7 @@ public class AdminProductService {
   }
 
   @Transactional(readOnly = true)
-  public AdminProduct get(Long id) {
+  public Product get(Long id) {
     return productRepository
         .findById(id)
         .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm."));
@@ -46,12 +46,12 @@ public class AdminProductService {
     return List.copyOf(categories);
   }
 
-  public AdminProductStatus[] statuses() {
-    return AdminProductStatus.values();
+  public ProductStatus[] statuses() {
+    return ProductStatus.values();
   }
 
   @Transactional
-  public AdminProduct create(
+  public Product create(
       String name,
       String category,
       BigDecimal unitPrice,
@@ -60,11 +60,11 @@ public class AdminProductService {
       String dishItems,
       String description,
       String imageUrl,
-      AdminProductStatus status) {
+      ProductStatus status) {
     validate(name, category, unitPrice, minGuests, maxGuests, status);
 
     return productRepository.save(
-        AdminProduct.builder()
+        Product.builder()
             .name(name.trim())
             .category(category.trim())
             .unitPrice(unitPrice)
@@ -88,10 +88,10 @@ public class AdminProductService {
       String dishItems,
       String description,
       String imageUrl,
-      AdminProductStatus status) {
+      ProductStatus status) {
     validate(name, category, unitPrice, minGuests, maxGuests, status);
 
-    AdminProduct product = get(id);
+    Product product = get(id);
     product.setName(name.trim());
     product.setCategory(category.trim());
     product.setUnitPrice(unitPrice);
@@ -106,25 +106,25 @@ public class AdminProductService {
 
   @Transactional
   public void toggleVisibility(Long id) {
-    AdminProduct product = get(id);
+    Product product = get(id);
     product.setStatus(
-        product.getStatus() == AdminProductStatus.PUBLISHED
-            ? AdminProductStatus.HIDDEN
-            : AdminProductStatus.PUBLISHED);
+        product.getStatus() == ProductStatus.PUBLISHED
+            ? ProductStatus.HIDDEN
+            : ProductStatus.PUBLISHED);
     productRepository.save(product);
   }
 
   @Transactional(readOnly = true)
   public long countPublished() {
-    return productRepository.countByStatus(AdminProductStatus.PUBLISHED);
+    return productRepository.countByStatus(ProductStatus.PUBLISHED);
   }
 
-  private AdminProductStatus parseStatus(String status) {
+  private ProductStatus parseStatus(String status) {
     if (status == null || status.isBlank()) {
       return null;
     }
     try {
-      return AdminProductStatus.valueOf(status.trim().toUpperCase(Locale.ROOT));
+      return ProductStatus.valueOf(status.trim().toUpperCase(Locale.ROOT));
     } catch (IllegalArgumentException ignored) {
       return null;
     }
@@ -136,7 +136,7 @@ public class AdminProductService {
       BigDecimal unitPrice,
       Integer minGuests,
       Integer maxGuests,
-      AdminProductStatus status) {
+      ProductStatus status) {
     requireText(name, "Tên thực đơn không được để trống.");
     requireText(category, "Danh mục không được để trống.");
     if (unitPrice == null || unitPrice.signum() < 0) {

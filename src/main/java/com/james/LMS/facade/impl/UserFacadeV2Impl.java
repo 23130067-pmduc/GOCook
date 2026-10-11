@@ -68,6 +68,10 @@ public class UserFacadeV2Impl implements UserFacadeV2 {
             .orElseThrow(
                 () -> new BadCredentialsException(ErrorCode.INVALID_CREDENTIALS.getMessage()));
 
+    if (!user.isActive()) {
+      throw new BadCredentialsException(ErrorCode.INVALID_CREDENTIALS.getMessage());
+    }
+
     if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
       throw new BadCredentialsException(ErrorCode.INVALID_CREDENTIALS.getMessage());
     }

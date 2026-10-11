@@ -5,10 +5,6 @@ spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
 
-  mvc:
-    view:
-      prefix: /WEB-INF/views/
-      suffix: .jsp
 
 server:
   servlet:

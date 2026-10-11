@@ -1,0 +1,37 @@
+package com.james.LMS.repository;
+
+import com.james.LMS.entity.Product;
+import com.james.LMS.enums.ProductStatus;
+import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface ProductRepository extends JpaRepository<Product, Long> {
+
+  @Query(
+      """
+      select p from Product p
+      where (:query = ''
+             or lower(p.name) like lower(concat('%', :query, '%'))
+             or lower(coalesce(p.description, '')) like lower(concat('%', :query, '%'))
+             or lower(coalesce(p.dishItems, '')) like lower(concat('%', :query, '%')))
+        and (:category = '' or lower(p.category) = lower(:category))
+        and (:status is null or p.status = :status)
+      order by p.updatedAt desc
+      """)
+  Page<Product> search(
+      @Param("query") String query,
+      @Param("category") String category,
+      @Param("status") ProductStatus status,
+      Pageable pageable);
+
+  @Query("select distinct p.category from Product p where p.category is not null order by p.category")
+  List<String> findDistinctCategories();
+
+  long countByStatus(ProductStatus status);
+}

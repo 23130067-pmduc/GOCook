@@ -1,8 +1,8 @@
 package com.james.LMS.admin.service;
 
-import com.james.LMS.admin.entity.AdminOrder;
-import com.james.LMS.admin.enums.AdminOrderStatus;
-import com.james.LMS.admin.repository.AdminOrderRepository;
+import com.james.LMS.entity.CookOrder;
+import com.james.LMS.enums.OrderStatus;
+import com.james.LMS.repository.OrderRepository;
 import com.james.LMS.admin.util.AdminPaging;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,10 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AdminOrderService {
 
-  private final AdminOrderRepository orderRepository;
+  private final OrderRepository orderRepository;
 
   @Transactional(readOnly = true)
-  public Page<AdminOrder> search(
+  public Page<CookOrder> search(
       String query,
       String status,
       LocalDate from,
@@ -35,11 +35,11 @@ public class AdminOrderService {
     }
 
     String normalizedQuery = normalize(query).toLowerCase(Locale.ROOT);
-    AdminOrderStatus parsedStatus = parseStatus(status);
+    OrderStatus parsedStatus = parseStatus(status);
     LocalDateTime fromDate = from == null ? null : from.atStartOfDay();
     LocalDateTime toExclusive = to == null ? null : to.plusDays(1).atStartOfDay();
 
-    Specification<AdminOrder> spec = Specification.where(null);
+    Specification<CookOrder> spec = (root, criteriaQuery, cb) -> cb.conjunction();
 
     if (!normalizedQuery.isBlank()) {
       String pattern = "%" + normalizedQuery + "%";
@@ -84,21 +84,21 @@ public class AdminOrderService {
   }
 
   @Transactional(readOnly = true)
-  public AdminOrder get(Long id) {
+  public CookOrder get(Long id) {
     return orderRepository
         .findById(id)
         .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn hàng."));
   }
 
   @Transactional(readOnly = true)
-  public List<AdminOrderStatus> allowedStatuses(Long id) {
-    AdminOrder order = get(id);
+  public List<OrderStatus> allowedStatuses(Long id) {
+    CookOrder order = get(id);
     return order.getStatus().allowedTargets();
   }
 
   @Transactional
-  public void update(Long id, AdminOrderStatus status, String internalNote) {
-    AdminOrder order = get(id);
+  public void update(Long id, OrderStatus status, String internalNote) {
+    CookOrder order = get(id);
     if (status == null || !order.getStatus().canTransitionTo(status)) {
       throw new IllegalArgumentException(
           "Không thể chuyển đơn từ “"
@@ -110,16 +110,33 @@ public class AdminOrderService {
     orderRepository.save(order);
   }
 
-  public AdminOrderStatus[] statuses() {
-    return AdminOrderStatus.values();
+  @Transactional(readOnly = true)
+  public List<CookOrder> findForStatistics(LocalDate from, LocalDate to) {
+    if (from != null && to != null && from.isAfter(to)) {
+      throw new IllegalArgumentException("Ngày bắt đầu không thể sau ngày kết thúc.");
+    }
+    LocalDateTime fromDate = from == null ? null : from.atStartOfDay();
+    LocalDateTime toExclusive = to == null ? null : to.plusDays(1).atStartOfDay();
+    Specification<CookOrder> spec = (root, criteriaQuery, cb) -> cb.conjunction();
+    if (fromDate != null) {
+      spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("scheduledAt"), fromDate));
+    }
+    if (toExclusive != null) {
+      spec = spec.and((root, query, cb) -> cb.lessThan(root.get("scheduledAt"), toExclusive));
+    }
+    return orderRepository.findAll(spec, Sort.by(Sort.Direction.ASC, "scheduledAt"));
   }
 
-  private AdminOrderStatus parseStatus(String status) {
+  public OrderStatus[] statuses() {
+    return OrderStatus.values();
+  }
+
+  private OrderStatus parseStatus(String status) {
     if (status == null || status.isBlank()) {
       return null;
     }
     try {
-      return AdminOrderStatus.valueOf(status.trim().toUpperCase(Locale.ROOT));
+      return OrderStatus.valueOf(status.trim().toUpperCase(Locale.ROOT));
     } catch (IllegalArgumentException ignored) {
       return null;
     }
