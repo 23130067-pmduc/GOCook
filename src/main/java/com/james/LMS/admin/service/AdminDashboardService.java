@@ -1,10 +1,10 @@
 package com.james.LMS.admin.service;
 
-import com.james.LMS.admin.entity.AdminOrder;
-import com.james.LMS.admin.enums.AdminOrderStatus;
-import com.james.LMS.admin.enums.AdminProductStatus;
-import com.james.LMS.admin.repository.AdminOrderRepository;
-import com.james.LMS.admin.repository.AdminProductRepository;
+import com.james.LMS.entity.CookOrder;
+import com.james.LMS.enums.OrderStatus;
+import com.james.LMS.enums.ProductStatus;
+import com.james.LMS.repository.OrderRepository;
+import com.james.LMS.repository.ProductRepository;
 import com.james.LMS.admin.repository.AdminUserRepository;
 import java.math.BigDecimal;
 import java.util.List;
@@ -17,8 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminDashboardService {
 
   private final AdminUserRepository userRepository;
-  private final AdminProductRepository productRepository;
-  private final AdminOrderRepository orderRepository;
+  private final ProductRepository productRepository;
+  private final OrderRepository orderRepository;
 
   @Transactional(readOnly = true)
   public long countUsers() {
@@ -27,7 +27,7 @@ public class AdminDashboardService {
 
   @Transactional(readOnly = true)
   public long countPublishedProducts() {
-    return productRepository.countByStatus(AdminProductStatus.PUBLISHED);
+    return productRepository.countByStatus(ProductStatus.PUBLISHED);
   }
 
   @Transactional(readOnly = true)
@@ -37,12 +37,17 @@ public class AdminDashboardService {
 
   @Transactional(readOnly = true)
   public BigDecimal completedRevenue() {
-    BigDecimal revenue = orderRepository.sumByStatus(AdminOrderStatus.COMPLETED);
+    BigDecimal revenue = orderRepository.sumByStatus(OrderStatus.COMPLETED);
     return revenue == null ? BigDecimal.ZERO : revenue;
   }
 
   @Transactional(readOnly = true)
-  public List<AdminOrder> recentOrders() {
+  public long countActiveChefs() {
+    return userRepository.countActiveByRole("INSTRUCTOR");
+  }
+
+  @Transactional(readOnly = true)
+  public List<CookOrder> recentOrders() {
     return orderRepository.findTop5ByOrderByCreatedAtDesc();
   }
 }

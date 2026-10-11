@@ -101,4 +101,13 @@ public class RestHandlerException {
 
     return new ResponseEntity<>(BaseResponse.build(errors, false), HttpStatus.BAD_REQUEST);
   }
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<BaseResponse<ExceptionResponse>> handleIllegalArgument(
+      IllegalArgumentException exception) {
+    return new ResponseEntity<>(
+        BaseResponse.build(
+            new ExceptionResponse("ADMIN_VALIDATION", exception.getMessage()), false),
+        HttpStatus.BAD_REQUEST);
+  }
+
 }

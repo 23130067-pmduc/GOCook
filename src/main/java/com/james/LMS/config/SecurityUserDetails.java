@@ -16,9 +16,9 @@ public class SecurityUserDetails implements UserDetails {
   @Getter @Setter public Long id;
   private String email;
   @JsonIgnore private String password;
-  @Getter private String username;
+  private String username;
   @Getter private String avatarUrl;
-  @Getter private Collection<? extends GrantedAuthority> authorities;
+  private Collection<? extends GrantedAuthority> authorities;
 
   public static SecurityUserDetails build(User user, List<GrantedAuthority> authorities) {
     return SecurityUserDetails.builder()
