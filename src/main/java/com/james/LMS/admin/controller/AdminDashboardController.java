@@ -14,15 +14,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AdminDashboardController {
 
-  private final AdminDashboardService dashboardService;
+    private final AdminDashboardService dashboardService;
 
-  @GetMapping
-  public AdminDashboardResponse getDashboard() {
-    return new AdminDashboardResponse(
-        dashboardService.countUsers(),
-        dashboardService.countPublishedProducts(),
-        dashboardService.countOrders(),
-        dashboardService.completedRevenue(),
-        dashboardService.recentOrders());
-  }
+    @GetMapping
+    public AdminDashboardResponse getDashboard() {
+        return new AdminDashboardResponse(
+                dashboardService.countUsers(),
+                dashboardService.countPublishedProducts(),
+                dashboardService.countOrders(),
+                dashboardService.countActiveChefs(),
+                dashboardService.todayRevenue(),
+                dashboardService.thisMonthRevenue(),
+                dashboardService.thisYearRevenue(),
+                dashboardService.completedRevenue(),
+                dashboardService.recentOrders());
+    }
 }

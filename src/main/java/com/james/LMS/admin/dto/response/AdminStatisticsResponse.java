@@ -6,14 +6,20 @@ import java.util.List;
 import java.util.Map;
 
 public record AdminStatisticsResponse(
-    LocalDate from,
-    LocalDate to,
-    BigDecimal revenue,
-    int orderCount,
-    long chefCount,
-    long userCount,
-    List<MonthlyRevenue> monthlyRevenue,
-    Map<String, Long> statusCounts) {
+        LocalDate from,
+        LocalDate to,
+        String groupBy,
+        BigDecimal revenue,
+        int orderCount,
+        long chefCount,
+        long userCount,
+        List<RevenuePoint> revenueSeries,
+        Map<String, Long> statusCounts) {
 
-  public record MonthlyRevenue(String month, String label, BigDecimal revenue) {}
+    public record RevenuePoint(
+            String key,
+            String label,
+            BigDecimal revenue,
+            long completedOrders) {
+    }
 }
