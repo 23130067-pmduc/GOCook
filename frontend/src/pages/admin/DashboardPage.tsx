@@ -26,10 +26,37 @@ export function AdminDashboardPage() {
       {!data ? <Loading /> : (
         <>
           <div className="grid grid-4">
-            <MetricCard title="Người dùng" value={data.userCount} />
-            <MetricCard title="Sản phẩm đang hiển thị" value={data.productCount} />
-            <MetricCard title="Đơn hàng" value={data.orderCount} />
-            <MetricCard title="Doanh thu hoàn thành" value={money(data.completedRevenue)} />
+            <section className="stack-sm">
+              <div className="between">
+                <div>
+                  <p className="eyebrow">Vận hành</p>
+                  <h3>Tổng quan hệ thống</h3>
+                </div>
+
+                <Link className="text-link" to={ROUTES.ADMIN_STATISTICS}>Xem báo cáo chi tiết →</Link>
+              </div>
+
+              <div className="grid grid-4">
+                <MetricCard title="Người dùng" value={data.userCount}/>
+                <MetricCard title="Đầu bếp hoạt động" value={data.activeChefCount}/>
+                <MetricCard title="Sản phẩm đang hiển thị" value={data.productCount}/>
+                <MetricCard title="Tổng đơn hàng" value={data.orderCount}/>
+              </div>
+            </section>
+
+            <section className="stack-sm">
+              <div>
+                <p className="eyebrow">Doanh thu</p>
+                <h3>Doanh thu đơn đã hoàn thành</h3>
+              </div>
+
+              <div className="grid grid-4">
+                <MetricCard title="Hôm nay" value={money(data.todayRevenue)}/>
+                <MetricCard title="Tháng này" value={money(data.thisMonthRevenue)}/>
+                <MetricCard title="Năm nay" value={money(data.thisYearRevenue)}/>
+                <MetricCard title="Toàn thời gian" value={money(data.completedRevenue)}/>
+              </div>
+            </section>
           </div>
           <section className="card stack">
             <div className="between"><h3>Đơn hàng gần đây</h3><Link className="text-link" to={ROUTES.ADMIN_ORDERS}>Xem tất cả</Link></div>
