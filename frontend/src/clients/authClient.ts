@@ -16,11 +16,16 @@ export const authClient = {
     await httpRequest('/api/v1/users/verify-email', { method: 'POST', body: JSON.stringify(payload) });
   },
 
-  async resendVerification(email: string): Promise<void> {
-    await httpRequest('/api/v1/users/resend-verification', {
+  async requestEmailVerification(email: string): Promise<void> {
+    await httpRequest('/api/v1/users/request-email-verification', {
       method: 'POST',
       body: JSON.stringify({ email }),
     });
+  },
+
+  // Backward-compatible alias while older screens are being migrated.
+  async resendVerification(email: string): Promise<void> {
+    await this.requestEmailVerification(email);
   },
 
   async forgotPassword(email: string): Promise<void> {

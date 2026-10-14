@@ -9,9 +9,7 @@ import { MenuDetailPage } from '../../pages/menu/MenuDetailPage';
 import { MenuListPage } from '../../pages/menu/MenuListPage';
 import { VegetarianMenuPage } from '../../pages/menu/VegetarianMenuPage';
 import { OffersPage } from '../../pages/offer/OffersPage';
-import { CookingRequestPage } from '../../pages/request/CookingRequestPage';
 import { MatchingPage } from '../../pages/request/MatchingPage';
-import { QuotesPage } from '../../pages/request/QuotesPage';
 import { ReviewPage } from '../../pages/review/ReviewPage';
 import { BecomeChefPage } from '../../pages/seller/BecomeChefPage';
 import { ChatPage } from '../../pages/support/ChatPage';
@@ -31,9 +29,7 @@ export const publicRoutes: RouteObject[] = [
       { path: ROUTES.MENU_VEGETARIAN, element: <VegetarianMenuPage /> },
       { path: ROUTES.OFFERS, element: <OffersPage /> },
       { path: ROUTES.HELP, element: <HelpPage /> },
-      { path: ROUTES.REQUEST, element: <CookingRequestPage /> },
       { path: ROUTES.PAGE_CATALOG, element: <PageCatalogPage /> },
-      { path: ROUTES.QUOTES, element: <QuotesPage /> },
       { path: ROUTES.REVIEW, element: <ReviewPage /> },
       { path: ROUTES.MATCHING, element: <MatchingPage /> },
       { path: ROUTES.BECOME_CHEF, element: <BecomeChefPage /> },
