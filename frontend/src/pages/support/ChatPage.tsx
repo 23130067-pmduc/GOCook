@@ -1,3 +1,8 @@
+import { useEffect } from 'react';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../../hooks/auth/useAuth';
+import { useSellerDemo } from '../../contexts/SellerDemoContext';
+import { displayDate, money, orderUrl } from '../seller/sellerMockData';
 import { useDocumentTitle } from '../../hooks/common/useDocumentTitle';
 
 /**
@@ -6,12 +11,25 @@ import { useDocumentTitle } from '../../hooks/common/useDocumentTitle';
  * Keep future business logic in hooks/clients for this domain, not inside the router.
  */
 export function ChatPage() {
-  useDocumentTitle("Trò chuyện với đầu bếp | GO Cook");
+  const { isSeller, isAuthenticated } = useAuth();
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }); }, []);
+  const { orders } = useSellerDemo();
+  const [params] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const chefOrder = isSeller ? orders.find(order => order.id === params.get('orderId')) : undefined;
+  const returnTo = chefOrder ? orderUrl(chefOrder.id) : isSeller ? '/seller' : isAuthenticated ? '/orders' : '/';
+  const canGoBack = !chefOrder && location.key !== 'default';
+  useDocumentTitle(isSeller ? 'Trò chuyện với khách hàng | GO Cook' : 'Trò chuyện với đầu bếp | GO Cook');
 
   return (
     <>
       <div className={"container"}>
         <div className={"page-heading"}>
+          <div className="row">
+            {canGoBack ? <button className="btn secondary sm" onClick={() => navigate(-1)}>← Quay lại trang trước</button> : <Link className="btn secondary sm" to={returnTo}>{chefOrder ? '← Quay lại chi tiết đơn' : isSeller ? '← Về kênh đầu bếp' : isAuthenticated ? '← Về đơn đặt nấu' : '← Về trang chủ'}</Link>}
+            {chefOrder && <span className="small muted">Đơn {chefOrder.id}</span>}
+          </div>
           <nav className={"breadcrumb"} aria-label={"Đường dẫn"}>
             <a href={"/"}>
               {"Trang chủ"}
@@ -37,16 +55,14 @@ export function ChatPage() {
                 <img className={"avatar"} src={"/assets/chef.png"} alt={"Ảnh minh họa đầu bếp nấu ăn tại nhà"} loading={"lazy"} />
                 <div>
                   <h3>
-                    {"Bếp Cô Mai"}
+                    {chefOrder?.customer || "Bếp Cô Mai"}
                   </h3>
                   <p className={"small muted"}>
-                    {"Trao đổi về bữa ăn của bạn"}
+                    {chefOrder ? `Trao đổi về đơn ${chefOrder.id}` : "Trao đổi về bữa ăn của bạn"}
                   </p>
                 </div>
               </div>
-              <a className={"text-link"} href={"/chef-detail"}>
-                {"Hồ sơ"}
-              </a>
+              <Link className="text-link" to={chefOrder ? returnTo : "/chef-detail"}>{chefOrder ? "Chi tiết đơn" : "Hồ sơ"}</Link>
             </div>
             <div className={"chat-stream"}>
               <p className={"small muted center"}>
@@ -75,7 +91,7 @@ export function ChatPage() {
               <label className={"sr-only"} htmlFor={"message"}>
                 {"Tin nhắn"}
               </label>
-              <input className={"input"} id={"message"} name={"message"} placeholder={"Nhắn điều bạn muốn dặn đầu bếp..."} />
+              <input className={"input"} id={"message"} name={"message"} placeholder={isSeller ? "Nhắn tin với khách hàng..." : "Nhắn điều bạn muốn dặn đầu bếp..."} />
               <button className={"btn sm"} type={"button"} data-action={"send-message"} disabled title={"Chức năng sẽ được tích hợp ở giai đoạn tiếp theo"}>
                 {"Gửi"}
               </button>
@@ -87,18 +103,18 @@ export function ChatPage() {
             </h3>
             <img className={""} src={"/assets/meal.png"} alt={"Mâm cơm Việt với cá kho, canh chua, rau xào và thịt luộc"} loading={"lazy"} />
             <h4>
-              {"Mâm Cơm Sum Vầy Miền Nam"}
+              {chefOrder?.menu || "Mâm Cơm Sum Vầy Miền Nam"}
             </h4>
             <p className={"small muted"}>
-              {"4 người · 24/09/2026 · 18:30"}
+              {chefOrder ? `${chefOrder.guests} người · ${displayDate(chefOrder.date)} · ${chefOrder.time}` : "4 người · 24/09/2026 · 18:30"}
             </p>
             <div>
               <div className={"summary-line"}>
                 <span>
-                  {"Thực đơn · 4 người"}
+                  {chefOrder ? `${chefOrder.serviceType === "MENU" ? "Thực đơn" : "Theo ngân sách"} · ${chefOrder.guests} người` : "Thực đơn · 4 người"}
                 </span>
                 <strong>
-                  {"480.000đ"}
+                  {chefOrder ? money(chefOrder.total) : "480.000đ"}
                 </strong>
               </div>
               <div className={"summary-line"}>
@@ -130,13 +146,11 @@ export function ChatPage() {
                   {"Tổng cộng"}
                 </span>
                 <strong>
-                  {"480.000đ"}
+                  {chefOrder ? money(chefOrder.total) : "480.000đ"}
                 </strong>
               </div>
             </div>
-            <a className={"btn secondary"} href={"/tracking"}>
-              {"Theo dõi đơn mẫu"}
-            </a>
+            <Link className="btn secondary" to={chefOrder ? returnTo : "/tracking"}>{chefOrder ? "Quay lại chi tiết đơn" : "Theo dõi đơn mẫu"}</Link>
           </aside>
         </div>
       </div>

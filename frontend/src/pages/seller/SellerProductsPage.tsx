@@ -1,190 +1,31 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { SellerWorkspace } from '../../components/common/SellerWorkspace';
+import { useSellerDemo } from '../../contexts/SellerDemoContext';
 import { useDocumentTitle } from '../../hooks/common/useDocumentTitle';
+import { categories, menuLabels, money } from './sellerMockData';
 
-/**
- * Route: /seller/products
- * Migrated from the former JSP demo markup into a dedicated React page.
- * Keep future business logic in hooks/clients for this domain, not inside the router.
- */
 export function SellerProductsPage() {
-  useDocumentTitle("Thực đơn của tôi | GO Cook");
-
-  return (
-    <>
-      <div className={"container"}>
-        <div className={"page-heading"}>
-          <nav className={"breadcrumb"} aria-label={"Đường dẫn"}>
-            <a href={"/"}>
-              {"Trang chủ"}
-            </a>
-            <span>
-              {"/"}
-            </span>
-            <span>
-              {"Thực đơn của tôi"}
-            </span>
-          </nav>
-          <h1>
-            {"Thực đơn của tôi"}
-          </h1>
-          <p className={"lead"}>
-            {"Bếp Cô Mai · Kênh người bán · Dữ liệu minh họa"}
-          </p>
-        </div>
-        <div className={"workspace"}>
-          <nav className={"card side-nav"} aria-label={"Quản lý"}>
-            <p className={"eyebrow"}>
-              {"Kênh người bán"}
-            </p>
-            <a href={"/seller"}>
-              <svg className={"icon"} viewBox={"0 0 24 24"} aria-hidden={"true"}>
-                <rect x={"3"} y={"3"} width={"7"} height={"7"} rx={"1"}></rect>
-                <rect x={"14"} y={"3"} width={"7"} height={"7"} rx={"1"}></rect>
-                <rect x={"3"} y={"14"} width={"7"} height={"7"} rx={"1"}></rect>
-                <rect x={"14"} y={"14"} width={"7"} height={"7"} rx={"1"}></rect>
-              </svg>
-              {"Tổng quan"}
-            </a>
-            <a href={"/seller/products"} aria-current={"page"}>
-              <svg className={"icon"} viewBox={"0 0 24 24"} aria-hidden={"true"}>
-                <path d={"M3 17h18M5 17a7 7 0 0 1 14 0M12 8V5m-2 0h4M4 21h16"}></path>
-              </svg>
-              {"Thực đơn của tôi"}
-            </a>
-            <a href={"/seller/orders"}>
-              <svg className={"icon"} viewBox={"0 0 24 24"} aria-hidden={"true"}>
-                <rect x={"3"} y={"5"} width={"18"} height={"16"} rx={"2"}></rect>
-                <path d={"M7 3v4m10-4v4M3 10h18m-13 5h3"}></path>
-              </svg>
-              {"Đơn đặt nấu"}
-            </a>
-            <a href={"/seller/revenue"}>
-              <svg className={"icon"} viewBox={"0 0 24 24"} aria-hidden={"true"}>
-                <path d={"M4 3v18h17M8 17v-5m5 5V7m5 10V4"}></path>
-              </svg>
-              {"Doanh thu"}
-            </a>
-            <a href={"/seller/schedule"}>
-              <svg className={"icon"} viewBox={"0 0 24 24"} aria-hidden={"true"}>
-                <circle cx={"12"} cy={"12"} r={"9"}></circle>
-                <path d={"M12 6v6l4 2"}></path>
-              </svg>
-              {"Lịch phục vụ"}
-            </a>
-            <a href={"/chat"}>
-              <svg className={"icon"} viewBox={"0 0 24 24"} aria-hidden={"true"}>
-                <path d={"M20 15a3 3 0 0 1-3 3H9l-6 3V6a3 3 0 0 1 3-3h11a3 3 0 0 1 3 3z"}></path>
-                <path d={"M7 8h9M7 12h6"}></path>
-              </svg>
-              {"Tin nhắn"}
-            </a>
-          </nav>
-          <div className={"stack"}>
-            <div className={"between"}>
-              <p className={"muted"}>
-                {"Quản lý món ăn, giá và trạng thái hiển thị."}
-              </p>
-              <a className={"btn"} href={"/seller/product-new"}>
-                {"+ Thêm thực đơn"}
-              </a>
-            </div>
-            <section className={"card"}>
-              <div className={"table-wrap"}>
-                <table>
-                  <caption>
-                    {"Thực đơn của Bếp Cô Mai"}
-                  </caption>
-                  <thead>
-                    <tr>
-                      <th scope={"col"}>
-                        {"Mã"}
-                      </th>
-                      <th scope={"col"}>
-                        {"Thực đơn"}
-                      </th>
-                      <th scope={"col"}>
-                        {"Giá / người"}
-                      </th>
-                      <th scope={"col"}>
-                        {"Loại"}
-                      </th>
-                      <th scope={"col"}>
-                        {"Trạng thái"}
-                      </th>
-                      <th scope={"col"}>
-                        {"Thao tác"}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>
-                        {"MN-001"}
-                      </td>
-                      <td>
-                        <a className={"text-link"} href={"/menu-detail"}>
-                          {"Mâm Cơm Sum Vầy Miền Nam"}
-                        </a>
-                      </td>
-                      <td>
-                        {"120.000đ"}
-                      </td>
-                      <td>
-                        {"Miền Nam"}
-                      </td>
-                      <td>
-                        <span className={"badge"}>
-                          {"Đang hiển thị"}
-                        </span>
-                      </td>
-                      <td>
-                        <div className={"row"}>
-                          <a className={"text-link"} href={"/seller/product-edit"}>
-                            {"Sửa"}
-                          </a>
-                          <button className={"btn ghost sm"} type={"button"} data-action={"hide-product"} disabled title={"Chức năng sẽ được tích hợp ở giai đoạn tiếp theo"}>
-                            {"Ẩn"}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        {"MN-002"}
-                      </td>
-                      <td>
-                        <a className={"text-link"} href={"/menu-vegetarian"}>
-                          {"Mâm Chay Thanh Lành"}
-                        </a>
-                      </td>
-                      <td>
-                        {"105.000đ"}
-                      </td>
-                      <td>
-                        {"Món chay"}
-                      </td>
-                      <td>
-                        <span className={"badge"}>
-                          {"Đang hiển thị"}
-                        </span>
-                      </td>
-                      <td>
-                        <div className={"row"}>
-                          <a className={"text-link"} href={"/seller/product-edit"}>
-                            {"Sửa"}
-                          </a>
-                          <button className={"btn ghost sm"} type={"button"} data-action={"hide-product"} disabled title={"Chức năng sẽ được tích hợp ở giai đoạn tiếp theo"}>
-                            {"Ẩn"}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          </div>
-        </div>
-      </div>
-    </>
-  );
+  useDocumentTitle('Thực đơn của tôi | GO Cook');
+  const { menus, hideMenu } = useSellerDemo();
+  const [query, setQuery] = useState('');
+  const [status, setStatus] = useState('');
+  const [category, setCategory] = useState('');
+  const [notice, setNotice] = useState('');
+  const filtered = menus.filter(menu => menu.name.toLocaleLowerCase('vi').includes(query.toLocaleLowerCase('vi')) && (!status || menu.status === status) && (!category || menu.category === category));
+  return <SellerWorkspace title="Thực đơn của tôi" description="Những món ngon mang dấu ấn riêng của căn bếp bạn.">
+    <div className="chef-demo-banner"><strong>Dữ liệu mẫu · {menus.length} thực đơn</strong><span>Thay đổi được giữ khi chuyển trang và đặt lại khi tải lại.</span></div>
+    {notice && <p className="notice" role="status">{notice}</p>}
+    <section className="card chef-filters" aria-label="Lọc thực đơn">
+      <label className="field">Tìm thực đơn<input type="search" placeholder="Nhập tên thực đơn…" value={query} onChange={e => setQuery(e.target.value)} /></label>
+      <label className="field">Trạng thái<select value={status} onChange={e => setStatus(e.target.value)}><option value="">Tất cả trạng thái</option>{Object.entries(menuLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+      <label className="field">Danh mục<select value={category} onChange={e => setCategory(e.target.value)}><option value="">Tất cả danh mục</option>{categories.map(item => <option key={item}>{item}</option>)}</select></label>
+    </section>
+    <div className="between"><h2>{filtered.length} thực đơn</h2><span className="small muted">Ẩn thực đơn vẫn giữ lịch sử đơn đặt nấu.</span></div>
+    <div className="chef-menu-grid">{filtered.map(menu => <article className="card chef-menu-card" key={menu.id}>
+      {menu.images.length ? <img className="chef-menu-photo" src={(menu.images.find(image => image.id === menu.coverId) || menu.images[0]).url} alt={menu.name} /> : <div className="chef-menu-photo chef-placeholder">Chưa có ảnh</div>}
+      <div className="stack-sm chef-menu-content"><div className="between"><span className="eyebrow">{menu.category}</span><span className={`badge ${menu.status === 'PUBLISHED' ? '' : 'gray'}`}>{menuLabels[menu.status]}</span></div><h2>{menu.name}</h2><p className="muted">{menu.description}</p><p className="small muted">{menu.minGuests}–{menu.maxGuests} khách · {menu.images.length} ảnh</p><p><strong className="green">{money(menu.price)}</strong><span className="small muted"> / khách</span></p><div className="row"><Link className="btn secondary sm" to={`/seller/product-edit?id=${menu.id}`}>Chỉnh sửa</Link>{menu.status !== 'HIDDEN' && <button className="btn ghost sm" onClick={() => { hideMenu(menu.id); setNotice(`Đã ẩn “${menu.name}”.`); }}>Ẩn thực đơn</button>}</div></div>
+    </article>)}</div>
+    {!filtered.length && <div className="card chef-empty"><h2>Chưa tìm thấy thực đơn</h2><p className="muted">Thử từ khóa khác hoặc bỏ bộ lọc.</p><button className="btn secondary" onClick={() => { setQuery(''); setCategory(''); setStatus(''); }}>Đặt lại bộ lọc</button></div>}
+  </SellerWorkspace>;
 }

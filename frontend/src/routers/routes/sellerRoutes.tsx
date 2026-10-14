@@ -11,6 +11,7 @@ import { SellerProductsPage } from '../../pages/seller/SellerProductsPage';
 import { SellerRevenuePage } from '../../pages/seller/SellerRevenuePage';
 import { SellerSchedulePage } from '../../pages/seller/SellerSchedulePage';
 import { ProtectedRoute } from '../guards/ProtectedRoute';
+import { SellerDemoProvider } from '../../contexts/SellerDemoContext';
 
 export const sellerRoutes: RouteObject[] = [
   {
