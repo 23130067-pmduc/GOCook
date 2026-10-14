@@ -2,7 +2,6 @@ import { useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthShell } from "../../components/auth/AuthShell";
 import { Notice } from "../../components/common/Notice";
-import { ApiError } from "../../clients/httpClient";
 import { loginDestination } from "../../util/loginDestination";
 import { ROUTES } from "../../constants/routes";
 import { useAuth } from "../../hooks/auth/useAuth";
@@ -35,15 +34,6 @@ export function LoginPage() {
       window.setTimeout(() => navigate(target, { replace: true }), 200);
     } catch (error) {
       setMessage({ text: authErrorMessage(error, "Không thể đăng nhập.") });
-      if (error instanceof ApiError && error.code === "1013") {
-        window.setTimeout(
-          () =>
-            navigate(
-              `${ROUTES.VERIFY_EMAIL}?email=${encodeURIComponent(normalizeEmail(form.email))}`,
-            ),
-          600,
-        );
-      }
     } finally {
       setBusy(false);
     }

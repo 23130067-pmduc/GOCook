@@ -26,8 +26,8 @@ export function RegisterPage() {
     try {
       const email = normalizeEmail(form.email);
       await authClient.register({ username: form.username.trim(), email, password: form.password });
-      setMessage({ type: 'success', text: `Đăng ký thành công. OTP đã được gửi tới ${email}.` });
-      window.setTimeout(() => navigate(`${ROUTES.VERIFY_EMAIL}?email=${encodeURIComponent(email)}`), 400);
+      setMessage({ type: 'success', text: 'Đăng ký thành công. Bạn có thể đăng nhập ngay; chỉ cần xác thực email khi đặt dịch vụ.' });
+      window.setTimeout(() => navigate(`${ROUTES.LOGIN}?registered=1&email=${encodeURIComponent(email)}`), 500);
     } catch (error) {
       setMessage({ text: authErrorMessage(error, 'Không thể tạo tài khoản.') });
     } finally {

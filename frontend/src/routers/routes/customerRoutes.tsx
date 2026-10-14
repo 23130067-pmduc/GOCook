@@ -12,7 +12,10 @@ import { VegetarianCheckoutSuccessPage } from '../../pages/checkout/VegetarianCh
 import { OrderDetailPage } from '../../pages/order/OrderDetailPage';
 import { OrdersPage } from '../../pages/order/OrdersPage';
 import { TrackingPage } from '../../pages/order/TrackingPage';
+import { CookingRequestPage } from '../../pages/request/CookingRequestPage';
+import { QuotesPage } from '../../pages/request/QuotesPage';
 import { ProtectedRoute } from '../guards/ProtectedRoute';
+import { VerifiedEmailRoute } from '../guards/VerifiedEmailRoute';
 
 export const customerRoutes: RouteObject[] = [
   {
@@ -26,8 +29,22 @@ export const customerRoutes: RouteObject[] = [
       { path: ROUTES.CART, element: <CartPage /> },
       { path: ROUTES.CART_EMPTY, element: <EmptyCartPage /> },
       { path: ROUTES.CART_VEGETARIAN, element: <VegetarianCartPage /> },
-      { path: ROUTES.CHECKOUT, element: <CheckoutPage /> },
-      { path: ROUTES.CHECKOUT_VEGETARIAN, element: <VegetarianCheckoutPage /> },
+      {
+        path: ROUTES.CHECKOUT,
+        element: <VerifiedEmailRoute><CheckoutPage /></VerifiedEmailRoute>,
+      },
+      {
+        path: ROUTES.CHECKOUT_VEGETARIAN,
+        element: <VerifiedEmailRoute><VegetarianCheckoutPage /></VerifiedEmailRoute>,
+      },
+      {
+        path: ROUTES.REQUEST,
+        element: <VerifiedEmailRoute><CookingRequestPage /></VerifiedEmailRoute>,
+      },
+      {
+        path: ROUTES.QUOTES,
+        element: <VerifiedEmailRoute><QuotesPage /></VerifiedEmailRoute>,
+      },
       { path: ROUTES.ORDER_DETAIL, element: <OrderDetailPage /> },
       { path: ROUTES.ORDERS, element: <OrdersPage /> },
       { path: ROUTES.CHECKOUT_SUCCESS, element: <CheckoutSuccessPage /> },

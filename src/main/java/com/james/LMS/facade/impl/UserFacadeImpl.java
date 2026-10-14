@@ -61,8 +61,10 @@ public class UserFacadeImpl implements UserFacade {
             .orElseThrow(() -> new EntityNotFoundException(ErrorCode.ROLE_NOT_FOUND));
     user.addRole(userRole);
 
+    // Deferred verification: account is usable immediately after sign-up.
+    // Verification OTP is requested only when the user enters a protected business flow
+    // such as booking a chef / checkout.
     this.userService.save(user);
-    sendEmailVerificationCode(user, false);
 
     return BaseResponse.ok();
   }
@@ -191,10 +193,8 @@ public class UserFacadeImpl implements UserFacade {
             .findByEmail(email)
             .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND));
 
-    if (!user.isEmailVerified()) {
-      throw new PermissionDeniedException(ErrorCode.EMAIL_NOT_VERIFIED);
-    }
-
+    // Password recovery is allowed even when e-mail has not been verified yet.
+    // The reset OTP itself proves that the user can receive mail at this address.
     String timeOutRetryKey =
         String.format(ResetPasswordKey.TIMEOUT_RETRY_KEY.getContent(), email);
     if (cacheService.hasKey(timeOutRetryKey)) {
@@ -258,6 +258,7 @@ public class UserFacadeImpl implements UserFacade {
             .id(user.getId())
             .username(user.getUsername())
             .email(user.getEmail())
+            .emailVerified(user.isEmailVerified())
             .avatarUrl(user.getAvatarUrl())
             .createdAt(DateUtil.convertToLocalDate(user.getCreatedAt()))
             .roles(
@@ -281,6 +282,7 @@ public class UserFacadeImpl implements UserFacade {
             .id(user.getId())
             .username(user.getUsername())
             .email(user.getEmail())
+            .emailVerified(user.isEmailVerified())
             .avatarUrl(user.getAvatarUrl())
             .createdAt(DateUtil.convertToLocalDate(user.getCreatedAt()))
             .build();
