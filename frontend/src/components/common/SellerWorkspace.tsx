@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import "../../styles/seller-preview.css";
+import { useAuth } from "../../hooks/auth/useAuth";
 
 const links = [
   [
@@ -36,6 +37,8 @@ export function SellerWorkspace({
   children: ReactNode;
 }) {
   const { pathname } = useLocation();
+  const { profile } = useAuth();
+  const chefName = profile?.username || "Đầu bếp";
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [pathname]);
@@ -49,7 +52,7 @@ export function SellerWorkspace({
         </nav>
         <div className="between chef-section-heading">
           <div>
-            <p className="eyebrow">Bếp Cô Mai · Kênh đầu bếp</p>
+            <p className="eyebrow">{chefName} · Kênh đầu bếp</p>
             <h1>{title}</h1>
             <p className="lead">{description}</p>
           </div>
@@ -61,9 +64,11 @@ export function SellerWorkspace({
       <div className="workspace">
         <aside className="card chef-sidebar">
           <div className="chef-identity">
-            <span className="chef-avatar">M</span>
+            <span className="chef-avatar">
+              {chefName.charAt(0).toLocaleUpperCase("vi-VN")}
+            </span>
             <div>
-              <strong>Bếp Cô Mai</strong>
+              <strong>{chefName}</strong>
               <p className="small muted">Đầu bếp tại gia</p>
             </div>
           </div>
