@@ -50,6 +50,9 @@ public class Product extends BaseEntity {
   @Column(name = "status", nullable = false, length = 30)
   private ProductStatus status;
 
+  @Column(name = "seller_id")
+  private Long sellerId;
+
   public String getDisplayCode() {
     return getId() == null ? "SP-MỚI" : "SP-%04d".formatted(getId());
   }
