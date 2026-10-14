@@ -1,190 +1,290 @@
-import { useDocumentTitle } from '../../hooks/common/useDocumentTitle';
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { SellerWorkspace } from "../../components/common/SellerWorkspace";
+import {
+  sellerMenuClient,
+  sellerMenuError,
+} from "../../clients/sellerMenuClient";
+import { useDocumentTitle } from "../../hooks/common/useDocumentTitle";
+import type { PageResponse } from "../../types/api";
+import { sellerMenuLabels, type SellerMenu } from "../../types/sellerMenu";
 
-/**
- * Route: /seller/products
- * Migrated from the former JSP demo markup into a dedicated React page.
- * Keep future business logic in hooks/clients for this domain, not inside the router.
- */
+const money = (amount: string) =>
+  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
+    Number(amount),
+  );
 export function SellerProductsPage() {
   useDocumentTitle("Thực đơn của tôi | GO Cook");
-
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState("");
+  const [category, setCategory] = useState("");
+  const [categories, setCategories] = useState<string[]>([]);
+  const [result, setResult] = useState<PageResponse<SellerMenu> | null>(null);
+  const [page, setPage] = useState(0);
+  const [reload, setReload] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState<number | null>(null);
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  useEffect(() => {
+    const controller = new AbortController();
+    sellerMenuClient
+      .options(controller.signal)
+      .then((options) => setCategories(options.categories))
+      .catch((err) => {
+        if (!controller.signal.aborted) setError(sellerMenuError(err));
+      });
+    return () => controller.abort();
+  }, []);
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setError("");
+    const timer = window.setTimeout(() => {
+      sellerMenuClient
+        .list(
+          { q: query.trim(), status, category, page, size: 6 },
+          controller.signal,
+        )
+        .then((data) => {
+          if (!controller.signal.aborted) {
+            if (page > 0 && !data.content.length) setPage(page - 1);
+            else setResult(data);
+          }
+        })
+        .catch((err) => {
+          if (!controller.signal.aborted) setError(sellerMenuError(err));
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) setLoading(false);
+        });
+    }, 200);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [query, status, category, page, reload]);
+  async function hide(menu: SellerMenu) {
+    setBusyId(menu.id);
+    setError("");
+    setNotice("");
+    try {
+      await sellerMenuClient.status(menu, "HIDDEN");
+      setNotice(`Đã ẩn “${menu.name}”.`);
+      setReload((value) => value + 1);
+    } catch (err) {
+      setError(sellerMenuError(err));
+    } finally {
+      setBusyId(null);
+    }
+  }
   return (
-    <>
-      <div className={"container"}>
-        <div className={"page-heading"}>
-          <nav className={"breadcrumb"} aria-label={"Đường dẫn"}>
-            <a href={"/"}>
-              {"Trang chủ"}
-            </a>
-            <span>
-              {"/"}
-            </span>
-            <span>
-              {"Thực đơn của tôi"}
-            </span>
-          </nav>
-          <h1>
-            {"Thực đơn của tôi"}
-          </h1>
-          <p className={"lead"}>
-            {"Bếp Cô Mai · Kênh người bán · Dữ liệu minh họa"}
-          </p>
-        </div>
-        <div className={"workspace"}>
-          <nav className={"card side-nav"} aria-label={"Quản lý"}>
-            <p className={"eyebrow"}>
-              {"Kênh người bán"}
-            </p>
-            <a href={"/seller"}>
-              <svg className={"icon"} viewBox={"0 0 24 24"} aria-hidden={"true"}>
-                <rect x={"3"} y={"3"} width={"7"} height={"7"} rx={"1"}></rect>
-                <rect x={"14"} y={"3"} width={"7"} height={"7"} rx={"1"}></rect>
-                <rect x={"3"} y={"14"} width={"7"} height={"7"} rx={"1"}></rect>
-                <rect x={"14"} y={"14"} width={"7"} height={"7"} rx={"1"}></rect>
-              </svg>
-              {"Tổng quan"}
-            </a>
-            <a href={"/seller/products"} aria-current={"page"}>
-              <svg className={"icon"} viewBox={"0 0 24 24"} aria-hidden={"true"}>
-                <path d={"M3 17h18M5 17a7 7 0 0 1 14 0M12 8V5m-2 0h4M4 21h16"}></path>
-              </svg>
-              {"Thực đơn của tôi"}
-            </a>
-            <a href={"/seller/orders"}>
-              <svg className={"icon"} viewBox={"0 0 24 24"} aria-hidden={"true"}>
-                <rect x={"3"} y={"5"} width={"18"} height={"16"} rx={"2"}></rect>
-                <path d={"M7 3v4m10-4v4M3 10h18m-13 5h3"}></path>
-              </svg>
-              {"Đơn đặt nấu"}
-            </a>
-            <a href={"/seller/revenue"}>
-              <svg className={"icon"} viewBox={"0 0 24 24"} aria-hidden={"true"}>
-                <path d={"M4 3v18h17M8 17v-5m5 5V7m5 10V4"}></path>
-              </svg>
-              {"Doanh thu"}
-            </a>
-            <a href={"/seller/schedule"}>
-              <svg className={"icon"} viewBox={"0 0 24 24"} aria-hidden={"true"}>
-                <circle cx={"12"} cy={"12"} r={"9"}></circle>
-                <path d={"M12 6v6l4 2"}></path>
-              </svg>
-              {"Lịch phục vụ"}
-            </a>
-            <a href={"/chat"}>
-              <svg className={"icon"} viewBox={"0 0 24 24"} aria-hidden={"true"}>
-                <path d={"M20 15a3 3 0 0 1-3 3H9l-6 3V6a3 3 0 0 1 3-3h11a3 3 0 0 1 3 3z"}></path>
-                <path d={"M7 8h9M7 12h6"}></path>
-              </svg>
-              {"Tin nhắn"}
-            </a>
-          </nav>
-          <div className={"stack"}>
-            <div className={"between"}>
-              <p className={"muted"}>
-                {"Quản lý món ăn, giá và trạng thái hiển thị."}
-              </p>
-              <a className={"btn"} href={"/seller/product-new"}>
-                {"+ Thêm thực đơn"}
-              </a>
-            </div>
-            <section className={"card"}>
-              <div className={"table-wrap"}>
-                <table>
-                  <caption>
-                    {"Thực đơn của Bếp Cô Mai"}
-                  </caption>
-                  <thead>
-                    <tr>
-                      <th scope={"col"}>
-                        {"Mã"}
-                      </th>
-                      <th scope={"col"}>
-                        {"Thực đơn"}
-                      </th>
-                      <th scope={"col"}>
-                        {"Giá / người"}
-                      </th>
-                      <th scope={"col"}>
-                        {"Loại"}
-                      </th>
-                      <th scope={"col"}>
-                        {"Trạng thái"}
-                      </th>
-                      <th scope={"col"}>
-                        {"Thao tác"}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>
-                        {"MN-001"}
-                      </td>
-                      <td>
-                        <a className={"text-link"} href={"/menu-detail"}>
-                          {"Mâm Cơm Sum Vầy Miền Nam"}
-                        </a>
-                      </td>
-                      <td>
-                        {"120.000đ"}
-                      </td>
-                      <td>
-                        {"Miền Nam"}
-                      </td>
-                      <td>
-                        <span className={"badge"}>
-                          {"Đang hiển thị"}
-                        </span>
-                      </td>
-                      <td>
-                        <div className={"row"}>
-                          <a className={"text-link"} href={"/seller/product-edit"}>
-                            {"Sửa"}
-                          </a>
-                          <button className={"btn ghost sm"} type={"button"} data-action={"hide-product"} disabled title={"Chức năng sẽ được tích hợp ở giai đoạn tiếp theo"}>
-                            {"Ẩn"}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        {"MN-002"}
-                      </td>
-                      <td>
-                        <a className={"text-link"} href={"/menu-vegetarian"}>
-                          {"Mâm Chay Thanh Lành"}
-                        </a>
-                      </td>
-                      <td>
-                        {"105.000đ"}
-                      </td>
-                      <td>
-                        {"Món chay"}
-                      </td>
-                      <td>
-                        <span className={"badge"}>
-                          {"Đang hiển thị"}
-                        </span>
-                      </td>
-                      <td>
-                        <div className={"row"}>
-                          <a className={"text-link"} href={"/seller/product-edit"}>
-                            {"Sửa"}
-                          </a>
-                          <button className={"btn ghost sm"} type={"button"} data-action={"hide-product"} disabled title={"Chức năng sẽ được tích hợp ở giai đoạn tiếp theo"}>
-                            {"Ẩn"}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          </div>
-        </div>
+    <SellerWorkspace
+      title="Thực đơn của tôi"
+      description="Những món ngon mang dấu ấn riêng của căn bếp bạn."
+    >
+      <div className="chef-demo-banner">
+        <strong>Thực đơn của bạn</strong>
+        <span>
+          Dữ liệu được lưu trên hệ thống. Ẩn thực đơn không xóa lịch sử đặt nấu.
+        </span>
       </div>
-    </>
+      {notice && (
+        <div className="chef-save-toast success">
+          <div role="status">
+            <strong>✓ Thành công</strong>
+            <p>{notice}</p>
+          </div>
+          <button
+            className="btn secondary sm"
+            aria-label="Đóng thông báo"
+            onClick={() => setNotice("")}
+          >
+            ×
+          </button>
+        </div>
+      )}
+      {error && (
+        <div className="notice warm" role="alert">
+          {error}{" "}
+          <button
+            className="btn secondary sm"
+            onClick={() => setReload((value) => value + 1)}
+          >
+            Tải lại
+          </button>
+        </div>
+      )}
+      <section className="card chef-filters" aria-label="Lọc thực đơn">
+        <label className="field">
+          Tìm thực đơn
+          <input
+            type="search"
+            placeholder="Nhập tên thực đơn…"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setPage(0);
+            }}
+          />
+        </label>
+        <label className="field">
+          Trạng thái
+          <select
+            value={status}
+            onChange={(e) => {
+              setStatus(e.target.value);
+              setPage(0);
+            }}
+          >
+            <option value="">Tất cả trạng thái</option>
+            {Object.entries(sellerMenuLabels).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="field">
+          Danh mục
+          <select
+            value={category}
+            onChange={(e) => {
+              setCategory(e.target.value);
+              setPage(0);
+            }}
+          >
+            <option value="">Tất cả danh mục</option>
+            {categories.map((item) => (
+              <option key={item}>{item}</option>
+            ))}
+          </select>
+        </label>
+      </section>
+      {loading ? (
+        <p className="card" role="status">
+          Đang tải thực đơn…
+        </p>
+      ) : (
+        !error && (
+          <>
+            <div className="between">
+              <h2>{result?.totalElements ?? 0} thực đơn</h2>
+              <span className="small muted">
+                Chỉ hiển thị thực đơn thuộc tài khoản của bạn.
+              </span>
+            </div>
+            <div className="chef-menu-grid">
+              {result?.content.map((menu) => (
+                <article className="card chef-menu-card" key={menu.id}>
+                  {menu.imageUrl ? (
+                    <img
+                      className="chef-menu-photo"
+                      src={menu.imageUrl}
+                      alt={menu.name}
+                    />
+                  ) : (
+                    <div className="chef-menu-photo chef-placeholder">
+                      Chưa có ảnh
+                    </div>
+                  )}
+                  <div className="stack-sm chef-menu-content">
+                    <div className="between">
+                      <span className="eyebrow">{menu.category}</span>
+                      <span
+                        className={`badge ${menu.status === "PUBLISHED" ? "" : "gray"}`}
+                      >
+                        {sellerMenuLabels[menu.status]}
+                      </span>
+                    </div>
+                    <h2>{menu.name}</h2>
+                    <p className="muted">{menu.description}</p>
+                    <p className="small muted">
+                      {menu.minGuests}–{menu.maxGuests} khách ·{" "}
+                      {menu.images.length} ảnh
+                    </p>
+                    <p>
+                      <strong className="green">{money(menu.unitPrice)}</strong>
+                      <span className="small muted"> / khách</span>
+                    </p>
+                    <div className="row">
+                      <Link
+                        className="btn secondary sm"
+                        to={`/seller/product-edit?id=${menu.id}`}
+                      >
+                        Chỉnh sửa
+                      </Link>
+                      {menu.status !== "HIDDEN" && (
+                        <button
+                          className="btn ghost sm"
+                          disabled={busyId !== null}
+                          onClick={() => hide(menu)}
+                        >
+                          {busyId === menu.id ? "Đang ẩn…" : "Ẩn thực đơn"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+            {!result?.content.length && (
+              <div className="card chef-empty">
+                <h2>
+                  {query || status || category
+                    ? "Không tìm thấy thực đơn phù hợp"
+                    : "Bắt đầu với thực đơn đầu tiên"}
+                </h2>
+                <p className="muted">
+                  {query || status || category
+                    ? "Thử từ khóa khác hoặc bỏ bộ lọc."
+                    : "Tạo một thực đơn và thêm những hình ảnh món ăn của bạn."}
+                </p>
+                {query || status || category ? (
+                  <button
+                    className="btn secondary"
+                    onClick={() => {
+                      setQuery("");
+                      setCategory("");
+                      setStatus("");
+                      setPage(0);
+                    }}
+                  >
+                    Đặt lại bộ lọc
+                  </button>
+                ) : (
+                  <Link className="btn" to="/seller/product-new">
+                    + Thêm thực đơn
+                  </Link>
+                )}
+              </div>
+            )}
+            {!!result?.totalPages && (
+              <div className="between">
+                <span className="small muted">
+                  Trang {page + 1} / {result.totalPages}
+                </span>
+                <div className="row">
+                  <button
+                    className="btn secondary sm"
+                    disabled={page === 0}
+                    onClick={() => setPage(page - 1)}
+                  >
+                    Trang trước
+                  </button>
+                  <button
+                    className="btn secondary sm"
+                    disabled={page + 1 >= result.totalPages}
+                    onClick={() => setPage(page + 1)}
+                  >
+                    Trang sau
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )
+      )}
+    </SellerWorkspace>
   );
 }

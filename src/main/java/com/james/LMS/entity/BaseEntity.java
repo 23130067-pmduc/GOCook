@@ -33,6 +33,11 @@ public class BaseEntity {
   @Column(name = "updated_at", nullable = false)
   private Long updatedAt;
 
+  /** Marks aggregate-only changes (such as image order) for optimistic versioning. */
+  public void touch() {
+    updatedAt = Math.max(Instant.now().toEpochMilli(), updatedAt == null ? 0 : updatedAt + 1);
+  }
+
   @PrePersist
   protected void prePersist() {
     isActive = true;

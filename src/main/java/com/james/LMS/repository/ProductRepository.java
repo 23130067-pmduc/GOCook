@@ -2,10 +2,13 @@ package com.james.LMS.repository;
 
 import com.james.LMS.entity.Product;
 import com.james.LMS.enums.ProductStatus;
+import jakarta.persistence.LockModeType;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -30,8 +33,33 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
       @Param("status") ProductStatus status,
       Pageable pageable);
 
-  @Query("select distinct p.category from Product p where p.category is not null order by p.category")
+  @Query(
+      "select distinct p.category from Product p where p.category is not null order by p.category")
   List<String> findDistinctCategories();
+
+  @Query(
+      """
+      select p from Product p where p.sellerId = :sellerId and p.isActive = true
+      and (:query = '' or lower(p.name) like lower(concat('%', :query, '%')))
+      and (:category = '' or p.category = :category)
+      and (:status is null or p.status = :status)
+      """)
+  Page<Product> searchOwned(
+      Long sellerId, String query, String category, ProductStatus status, Pageable pageable);
+
+  @Query(
+      "select p from Product p where p.id = :id and p.sellerId = :sellerId and p.isActive = true")
+  Optional<Product> findOwned(Long id, Long sellerId);
+
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query(
+      "select p from Product p where p.id = :id and p.sellerId = :sellerId and p.isActive = true")
+  Optional<Product> lockOwned(Long id, Long sellerId);
+
+  @Query(
+      "select distinct p.category from Product p where p.sellerId = :sellerId and p.isActive = true"
+          + " order by p.category")
+  List<String> findOwnedCategories(Long sellerId);
 
   long countByStatus(ProductStatus status);
 }
