@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
@@ -158,13 +159,15 @@ public class SellerProductServiceImpl implements SellerProductService {
       throw invalid("Thực đơn hiển thị phải có ít nhất một ảnh.");
     List<byte[]> content = files.stream().map(this::validatedBytes).toList();
     List<String> uploaded = new ArrayList<>();
+    Consumer<String> deleteUploaded = this::tryDelete;
+    ProductImageCleanupService cleanupService = this.cleanup;
     // Compensation: keep old images until DB commit; remove new uploads if the transaction fails.
     TransactionSynchronizationManager.registerSynchronization(
         new TransactionSynchronization() {
           @Override
           public void afterCompletion(int status) {
             if (status != STATUS_COMMITTED)
-              uploaded.forEach(SellerProductServiceImpl.this::tryDelete);
+              uploaded.forEach(deleteUploaded); // Rollback: delete new uploads if transaction fails.
           }
 
           @Override
@@ -172,7 +175,7 @@ public class SellerProductServiceImpl implements SellerProductService {
             for (ProductImage image : current) {
               if (!image.isActive() && image.getCloudinaryPublicId() != null) {
                 try {
-                  cleanup.cleanup(image.getId());
+                  cleanupService.cleanup(image.getId());
                 } catch (Exception error) {
                   log.warn("Menu image cleanup pending for image {}", image.getId());
                 }

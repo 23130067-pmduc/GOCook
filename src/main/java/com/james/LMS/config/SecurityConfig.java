@@ -37,7 +37,7 @@ public class SecurityConfig implements WebMvcConfigurer {
   public static final String COOKIE_REFRESH_TOKEN_NAME = "refresh-token";
   public static final String VALIDATE_LOGIN = "validate-login";
 
-  private final String[] WHITE_LISTS = {
+  private static final String[] WHITE_LISTS = {
       "/",
       "/login",
       "/register",
