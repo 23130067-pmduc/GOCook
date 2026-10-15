@@ -29,6 +29,9 @@ public class User extends BaseEntity {
   @Column(name = "avatar_url")
   private String avatarUrl;
 
+  @Column(name = "phone")
+  private  String phone;
+
   @Column(name = "email_verified", nullable = false)
   @Builder.Default
   private boolean emailVerified = false;
