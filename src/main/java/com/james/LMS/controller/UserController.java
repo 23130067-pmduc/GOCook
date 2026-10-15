@@ -53,7 +53,7 @@ public class UserController {
     return this.userFacade.verifyEmail(verifyEmailRequest);
   }
 
-  @PostMapping("/resend-verification")
+  @PostMapping({"/resend-verification", "/request-email-verification"})
   @ResponseStatus(HttpStatus.OK)
   @Operation(tags = {"User APIs"})
   public BaseResponse<Void> resendVerification(

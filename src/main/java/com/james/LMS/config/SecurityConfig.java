@@ -68,6 +68,7 @@ public class SecurityConfig implements WebMvcConfigurer {
       "/api/v1/users/sign-up",
       "/api/v1/users/verify-email",
       "/api/v1/users/resend-verification",
+      "/api/v1/users/request-email-verification",
       "/api/v1/users/refresh-token",
       "/api/v1/users/forgot-password",
       "/api/v1/users/verify-otp",
@@ -75,7 +76,8 @@ public class SecurityConfig implements WebMvcConfigurer {
       "/api/v2/users/login",
       "/api/payments/vnpay-ipn",
       "/actuator/**",
-      "/api/v1/users/demo"
+      "/api/v1/users/demo",
+      "/api/products/**"
   };
   @Bean
   public PasswordEncoder passwordEncoder() {

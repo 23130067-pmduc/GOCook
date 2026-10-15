@@ -62,4 +62,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
   List<String> findOwnedCategories(Long sellerId);
 
   long countByStatus(ProductStatus status);
+
+  @Query(
+      "select p from Product p where p.id = :id and p.isActive = true and p.status = com.james.LMS.enums.ProductStatus.PUBLISHED")
+  Optional<Product> findPublished(@Param("id") Long id);
 }

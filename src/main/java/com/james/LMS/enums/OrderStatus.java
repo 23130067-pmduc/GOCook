@@ -1,44 +1,89 @@
 package com.james.LMS.enums;
 
 import java.util.List;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
 public enum OrderStatus {
-  PENDING("Chờ xác nhận", "gold"),
-  CONFIRMED("Đã xác nhận", ""),
-  COOKING("Đang nấu", "gold"),
-  COMPLETED("Hoàn thành", "gray"),
-  CANCELLED("Đã hủy", "red");
 
-  private final String label;
-  private final String badgeClass;
+    PENDING("Chờ xác nhận", "gold"),
+    CONFIRMED("Đã xác nhận", ""),
+    PREPARING("Đang chuẩn bị", "gold"),
+    COOKING("Đang nấu", "gold"),
+    AWAITING_ACCEPTANCE("Chờ nghiệm thu", "gold"),
+    COMPLETED("Hoàn thành", "gray"),
+    CANCELLED("Đã hủy", "red"),
+    REJECTED("Đã từ chối", "red");
 
-  public String getValue() {
-    return name();
-  }
+    private final String label;
+    private final String badgeClass;
 
-  public boolean canTransitionTo(OrderStatus target) {
-    if (target == null || target == this) {
-      return true;
+    public String getValue() {
+        return name();
     }
-    return switch (this) {
-      case PENDING -> target == CONFIRMED || target == CANCELLED;
-      case CONFIRMED -> target == COOKING || target == CANCELLED;
-      case COOKING -> target == COMPLETED || target == CANCELLED;
-      case COMPLETED, CANCELLED -> false;
-    };
-  }
 
-  public List<OrderStatus> allowedTargets() {
-    return switch (this) {
-      case PENDING -> List.of(PENDING, CONFIRMED, CANCELLED);
-      case CONFIRMED -> List.of(CONFIRMED, COOKING, CANCELLED);
-      case COOKING -> List.of(COOKING, COMPLETED, CANCELLED);
-      case COMPLETED -> List.of(COMPLETED);
-      case CANCELLED -> List.of(CANCELLED);
-    };
-  }
+    public boolean canTransitionTo(OrderStatus target) {
+        if (target == null || target == this) {
+            return true;
+        }
+
+        return switch (this) {
+            case PENDING -> target == CONFIRMED
+                    || target == CANCELLED
+                    || target == REJECTED;
+
+            case CONFIRMED -> target == PREPARING
+                    || target == CANCELLED;
+
+            case PREPARING -> target == COOKING
+                    || target == CANCELLED;
+
+            case COOKING -> target == AWAITING_ACCEPTANCE
+                    || target == CANCELLED;
+
+            case AWAITING_ACCEPTANCE -> target == COMPLETED
+                    || target == CANCELLED;
+
+            case COMPLETED, CANCELLED, REJECTED -> false;
+        };
+    }
+
+    public List<OrderStatus> allowedTargets() {
+        return switch (this) {
+            case PENDING -> List.of(
+                    PENDING,
+                    CONFIRMED,
+                    CANCELLED,
+                    REJECTED);
+
+            case CONFIRMED -> List.of(
+                    CONFIRMED,
+                    PREPARING,
+                    CANCELLED);
+
+            case PREPARING -> List.of(
+                    PREPARING,
+                    COOKING,
+                    CANCELLED);
+
+            case COOKING -> List.of(
+                    COOKING,
+                    AWAITING_ACCEPTANCE,
+                    CANCELLED);
+
+            case AWAITING_ACCEPTANCE -> List.of(
+                    AWAITING_ACCEPTANCE,
+                    COMPLETED,
+                    CANCELLED);
+
+            case COMPLETED -> List.of(COMPLETED);
+
+            case CANCELLED -> List.of(CANCELLED);
+
+            case REJECTED -> List.of(REJECTED);
+        };
+    }
 }

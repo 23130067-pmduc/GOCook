@@ -13,6 +13,7 @@ public class UserDetailResponse {
   private Long id;
   private String username;
   private String email;
+  private Boolean emailVerified;
   private String avatarUrl;
   private Boolean isInstructor;
   private String instructorName;

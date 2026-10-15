@@ -11,6 +11,7 @@ export interface AuthContextValue {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isSeller: boolean;
+  emailVerified: boolean;
   login: (email: string, password: string) => Promise<UserProfile | null>;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<UserProfile | null>;
@@ -64,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: Boolean(profile),
     isAdmin: roles.includes(ROLES.ADMIN),
     isSeller: roles.includes(ROLES.SELLER),
+    emailVerified: Boolean(profile?.emailVerified),
     login,
     logout,
     refreshProfile,
