@@ -57,12 +57,40 @@ export function ProductFormPage({ edit = false }: { edit?: boolean }) {
 
   async function save(event: FormEvent) {
     event.preventDefault();
+
+    const unitPrice = Number(form.unitPrice);
+    // validate
+    if (!form.name.trim()) {
+      setMessage({text: 'Tên thực đơn không được để trống.',});
+      return;
+    }
+
+    if (!Number.isFinite(unitPrice) || unitPrice < 0) {
+      setMessage({text: 'Giá mỗi người không hợp lệ.',});
+      return;
+    }
+
+    if (form.minGuests < 1 || form.maxGuests < 1) {
+      setMessage({text: 'Số khách phải lớn hơn 0.',});
+      return;
+    }
+
+    if (form.minGuests > form.maxGuests) {
+      setMessage({text: 'Số khách tối thiểu không thể lớn hơn số khách tối đa.',});
+      return;
+    }
+
+    if (form.status === 'PUBLISHED' && !form.imageUrl.trim()) {
+      setMessage({text: 'Thực đơn đang hiển thị phải có ảnh đại diện.',});
+      return;
+    }
+
     setBusy(true);
     setMessage(null);
     const payload = {
       name: form.name,
       category: form.category,
-      unitPrice: Number(form.unitPrice),
+      unitPrice,
       minGuests: Number(form.minGuests),
       maxGuests: Number(form.maxGuests),
       dishItems: form.dishItems,
@@ -91,7 +119,7 @@ export function ProductFormPage({ edit = false }: { edit?: boolean }) {
           <label className="field">Giá mỗi người<input type="number" min="0" value={form.unitPrice} onChange={(e) => setForm({ ...form, unitPrice: e.target.value })} required /></label>
           <label className="field">Trạng thái<select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>{(options.statuses.length ? options.statuses : ['PUBLISHED', 'DRAFT', 'HIDDEN']).map((value) => <option key={value} value={value}>{PRODUCT_LABEL[value] || value}</option>)}</select></label>
           <label className="field">Khách tối thiểu<input type="number" min="1" value={form.minGuests} onChange={(e) => setForm({ ...form, minGuests: Number(e.target.value) })} /></label>
-          <label className="field">Khách tối đa<input type="number" min="1" value={form.maxGuests} onChange={(e) => setForm({ ...form, maxGuests: Number(e.target.value) })} /></label>
+          <label className="field">Khách tối đa<input type="number" min={form.minGuests} value={form.maxGuests} onChange={(event) => setForm({...form, maxGuests: Number(event.target.value),})}/></label>
         </div>
         <label className="field">Danh sách món<textarea value={form.dishItems} onChange={(e) => setForm({ ...form, dishItems: e.target.value })} /></label>
         <label className="field">Mô tả<textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></label>

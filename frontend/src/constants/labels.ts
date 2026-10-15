@@ -1,9 +1,12 @@
 export const ORDER_LABEL: Record<string, string> = {
   PENDING: 'Chờ xác nhận',
   CONFIRMED: 'Đã xác nhận',
+  PREPARING: 'Đang chuẩn bị',
   COOKING: 'Đang nấu',
+  AWAITING_ACCEPTANCE: 'Chờ nghiệm thu',
   COMPLETED: 'Hoàn thành',
   CANCELLED: 'Đã hủy',
+  REJECTED: 'Đã từ chối',
 };
 
 export const PRODUCT_LABEL: Record<string, string> = {
