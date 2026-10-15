@@ -11,7 +11,11 @@ import type {UiMessage} from '../../types/api';
 import {money} from '../../util/format';
 
 function isoDate(date: Date) {
-    return date.toISOString().slice(0, 10);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
 }
 
 function rangeFor(groupBy: RevenueGroupBy,): { from: string; to: string; } {
@@ -66,6 +70,7 @@ export function AdminStatisticsPage() {
                     completed: 0,
                     cancelled: 0,
                     active: 0,
+                    rejected: 0,
                 };
             }
 
@@ -83,18 +88,28 @@ export function AdminStatisticsPage() {
             const totalStatus = Object.values(data.statusCounts || {},).reduce((sum, value) => sum + Number(value), 0,) || 1;
             const completed = Number(data.statusCounts?.COMPLETED || 0,);
             const cancelled = Number(data.statusCounts?.CANCELLED || 0,);
+            const rejected = Number(data.statusCounts?.REJECTED || 0,);
 
             return {
                 max,
                 totalStatus,
                 completed,
                 cancelled,
-                active: Math.max(0, totalStatus - cancelled,),
+                active: Math.max(0, totalStatus - cancelled - rejected,),
+                rejected,
             };
         }, [data]);
 
-    function submit(event: FormEvent,) {
+    function submit(event: FormEvent) {
         event.preventDefault();
+
+        if (!from || !to || from > to) {
+            setMessage({
+                text: 'Khoảng thời gian thống kê không hợp lệ.',
+            });
+            return;
+        }
+
         void load();
     }
 
@@ -129,12 +144,22 @@ export function AdminStatisticsPage() {
 
                     <label className="field">
                         Từ ngày
-                        <input type="date" value={from} onChange={(e) => setFrom(e.target.value,)}/>
+                        <input
+                            type="date"
+                            value={from}
+                            max={to || undefined}
+                            onChange={(event) => setFrom(event.target.value)}
+                        />
                     </label>
 
                     <label className="field">
                         Đến ngày
-                        <input type="date" value={to} onChange={(e) => setTo(e.target.value,)}/>
+                        <input
+                            type="date"
+                            value={to}
+                            min={from || undefined}
+                            onChange={(event) => setTo(event.target.value)}
+                        />
                     </label>
 
                     <div className="field">
@@ -237,6 +262,11 @@ export function AdminStatisticsPage() {
                             <div className="summary-line">
                                 <span>Đã hủy</span>
                                 <strong>{Math.round(chart.cancelled / chart.totalStatus * 100,)}%</strong>
+                            </div>
+
+                            <div className="summary-line">
+                                <span>Đã từ chối</span>
+                                <strong>{Math.round(chart.rejected / chart.totalStatus * 100,)}%</strong>
                             </div>
 
                             <div className="summary-line">
