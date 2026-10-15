@@ -36,6 +36,9 @@ public class CookOrder extends BaseEntity {
   @Column(name = "customer_email", length = 255)
   private String customerEmail;
 
+  @Column(name = "customer_id")
+  private Long customerId;
+
   @Column(name = "product_name", nullable = false, length = 255)
   private String productName;
 
