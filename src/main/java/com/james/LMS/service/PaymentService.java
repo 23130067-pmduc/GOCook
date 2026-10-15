@@ -1,15 +1,12 @@
 package com.james.LMS.service;
 
 import com.james.LMS.request.PaymentCheckoutRequest;
-import com.james.LMS.response.CustomerProductResponse;
 import com.james.LMS.response.PaymentCheckoutResponse;
 import com.james.LMS.response.PaymentIpnResponse;
 import com.james.LMS.response.PaymentStatusResponse;
 import java.util.Map;
 
 public interface PaymentService {
-
-  CustomerProductResponse product(Long productId);
 
   PaymentCheckoutResponse checkout(
       Long customerId, String customerEmail, PaymentCheckoutRequest request, String ipAddress);

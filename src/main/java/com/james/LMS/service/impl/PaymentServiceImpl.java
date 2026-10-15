@@ -18,7 +18,6 @@ import com.james.LMS.repository.PaymentTransactionRepository;
 import com.james.LMS.repository.ProductRepository;
 import com.james.LMS.repository.UserRepository;
 import com.james.LMS.request.PaymentCheckoutRequest;
-import com.james.LMS.response.CustomerProductResponse;
 import com.james.LMS.response.PaymentCheckoutResponse;
 import com.james.LMS.response.PaymentIpnResponse;
 import com.james.LMS.response.PaymentStatusResponse;
@@ -64,12 +63,6 @@ public class PaymentServiceImpl implements PaymentService {
   private final PaymentProperties properties;
   private final ObjectMapper mapper;
   private final TransactionTemplate transactions;
-
-  @Override
-  public CustomerProductResponse product(Long productId) {
-    Product product = payableProduct(productId);
-    return CustomerProductResponse.from(product, chefName(product));
-  }
 
   @Override
   public PaymentCheckoutResponse checkout(

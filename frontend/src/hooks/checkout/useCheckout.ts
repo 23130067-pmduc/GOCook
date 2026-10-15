@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
+import { menuClient } from '../../clients/menuClient';
 import { paymentClient, paymentError } from '../../clients/paymentClient';
 import type { UiMessage } from '../../types/api';
-import type { CheckoutProduct } from '../../types/payment';
+import type { MenuDetail } from '../../types/menu';
 import { useAuth } from '../auth/useAuth';
 import { rememberCheckout } from './checkoutRetry';
 
@@ -16,7 +17,7 @@ export function useCheckout() {
   const productId = Number(params.get('productId'));
   const hasProductId = Number.isInteger(productId) && productId > 0;
 
-  const [product, setProduct] = useState<CheckoutProduct | null>(null);
+  const [product, setProduct] = useState<MenuDetail | null>(null);
   const [loading, setLoading] = useState(hasProductId);
   const [message, setMessage] = useState<UiMessage | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -37,8 +38,8 @@ export function useCheckout() {
     if (!hasProductId) return;
     const controller = new AbortController();
     setLoading(true);
-    paymentClient
-      .product(productId, controller.signal)
+    menuClient
+      .get(String(productId), controller.signal)
       .then(setProduct)
       .catch((error) => {
         if (!controller.signal.aborted) setMessage({ type: 'error', text: paymentError(error) });
@@ -52,7 +53,7 @@ export function useCheckout() {
   const guestCount = guests ?? product?.minGuests ?? 0;
   const guestsInRange =
     product !== null && guestCount >= product.minGuests && guestCount <= product.maxGuests;
-  const total = product ? product.unitPrice * guestCount : 0;
+  const total = product ? Number(product.unitPrice) * guestCount : 0;
   const times = Array.from(new Set([...BASE_TIMES, time]));
 
   const canSubmit =

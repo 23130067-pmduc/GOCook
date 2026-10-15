@@ -77,7 +77,7 @@ export function CheckoutView({ title }: { title: string }) {
                   <div>
                     <h3>{product.name}</h3>
                     <p className="small muted">
-                      {[product.chefName, `${money(product.unitPrice)}/người`]
+                      {[product.sellerName, `${money(Number(product.unitPrice))}/người`]
                         .filter(Boolean)
                         .join(' · ')}
                     </p>

@@ -1,15 +1,7 @@
 import { ApiError, httpRequest } from './httpClient';
-import type {
-  CheckoutProduct,
-  CheckoutRequest,
-  CheckoutResult,
-  PaymentStatusResult,
-} from '../types/payment';
+import type { CheckoutRequest, CheckoutResult, PaymentStatusResult } from '../types/payment';
 
 export const paymentClient = {
-  product: (id: number, signal?: AbortSignal) =>
-    httpRequest<CheckoutProduct>(`/api/products/${id}`, { signal }),
-
   checkout: (request: CheckoutRequest) =>
     httpRequest<CheckoutResult>('/api/payments/checkout', {
       method: 'POST',
