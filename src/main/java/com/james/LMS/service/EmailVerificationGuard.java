@@ -35,10 +35,10 @@ public class EmailVerificationGuard {
         userService
             .findByEmail(principal.getUsername())
             .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND));
-
-    if (!user.isEmailVerified()) {
-      throw new PermissionDeniedException(ErrorCode.EMAIL_NOT_VERIFIED);
-    }
+//
+//    if (!user.isEmailVerified()) {
+//      throw new PermissionDeniedException(ErrorCode.EMAIL_NOT_VERIFIED);
+//    }
 
     return user;
   }

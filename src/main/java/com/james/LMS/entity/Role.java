@@ -2,22 +2,18 @@ package com.james.LMS.entity;
 
 import com.james.LMS.enums.RoleEnum;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "roles")
 @Getter
-@SuperBuilder
-@AllArgsConstructor
+@Setter
 @NoArgsConstructor
-@ToString(callSuper = true)
+@SuperBuilder
 public class Role extends BaseEntity {
 
+  @Enumerated(EnumType.STRING)
   @Column(name = "role_name", nullable = false)
-  @Enumerated(value = EnumType.STRING)
   private RoleEnum roleName;
 }

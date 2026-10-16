@@ -52,7 +52,7 @@ public class UserFacadeImpl implements UserFacade {
             .username(upsertUserRequest.getUsername().trim())
             .email(email)
             .password(passwordEncoded)
-            .emailVerified(false)
+//            .emailVerified(false)
             .build();
 
     Role userRole =
@@ -78,7 +78,7 @@ public class UserFacadeImpl implements UserFacade {
             .findByEmail(email)
             .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND));
 
-    if (user.isEmailVerified()) return BaseResponse.ok();
+//    if (user.isEmailVerified()) return BaseResponse.ok();
 
     String otpKey = String.format(EmailVerificationKey.OTP_KEY.getContent(), email);
     Object cachedOtp = cacheService.retrieve(otpKey);
@@ -88,7 +88,7 @@ public class UserFacadeImpl implements UserFacade {
       throw new PermissionDeniedException(ErrorCode.NOT_MATCHED_OTP);
     }
 
-    user.verifyEmail();
+//    user.verifyEmail();
     userService.save(user);
 
     cacheService.delete(otpKey);
@@ -106,9 +106,9 @@ public class UserFacadeImpl implements UserFacade {
             .findByEmail(email)
             .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND));
 
-    if (user.isEmailVerified()) {
-      throw new PermissionDeniedException(ErrorCode.EMAIL_ALREADY_VERIFIED);
-    }
+//    if (user.isEmailVerified()) {
+//      throw new PermissionDeniedException(ErrorCode.EMAIL_ALREADY_VERIFIED);
+//    }
 
     sendEmailVerificationCode(user, true);
     return BaseResponse.ok();
@@ -258,7 +258,7 @@ public class UserFacadeImpl implements UserFacade {
             .id(user.getId())
             .username(user.getUsername())
             .email(user.getEmail())
-            .emailVerified(user.isEmailVerified())
+//            .emailVerified(user.isEmailVerified())
             .avatarUrl(user.getAvatarUrl())
             .createdAt(DateUtil.convertToLocalDate(user.getCreatedAt()))
             .roles(
@@ -282,7 +282,7 @@ public class UserFacadeImpl implements UserFacade {
             .id(user.getId())
             .username(user.getUsername())
             .email(user.getEmail())
-            .emailVerified(user.isEmailVerified())
+//            .emailVerified(user.isEmailVerified())
             .avatarUrl(user.getAvatarUrl())
             .createdAt(DateUtil.convertToLocalDate(user.getCreatedAt()))
             .build();

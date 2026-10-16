@@ -1,0 +1,8 @@
+package com.james.LMS.enums;
+
+public enum ChefScheduleStatus {
+    HELD,
+    CONFIRMED,
+    CANCELLED,
+    COMPLETED
+}
