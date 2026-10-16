@@ -58,6 +58,15 @@ public class CookOrder extends BaseEntity {
   @Column(name = "status", nullable = false, length = 30)
   private OrderStatus status;
 
+  @Column(name = "customer_id")
+  private Long customerId;
+
+  @Column(name = "chef_id")
+  private Long chefId;
+
+  @Column(name = "customer_phone", length = 30)
+  private String customerPhone;
+
   @Column(name = "customer_note", columnDefinition = "TEXT")
   private String customerNote;
 
