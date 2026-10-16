@@ -1,156 +1,82 @@
+import { useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { customerOrderClient } from '../../clients/customerOrderClient';
+import { Loading } from '../../components/common/Loading';
+import { Notice } from '../../components/common/Notice';
+import { ORDER_LABEL } from '../../constants/labels';
+import { ROUTES } from '../../constants/routes';
 import { useDocumentTitle } from '../../hooks/common/useDocumentTitle';
+import type { CustomerOrder } from '../../types/customerOrder';
+import type { UiMessage } from '../../types/api';
+import { dateTime, money } from '../../util/format';
+import { statusClass } from '../../util/status';
 
-/**
- * Route: /order-detail
- * Migrated from the former JSP demo markup into a dedicated React page.
- * Keep future business logic in hooks/clients for this domain, not inside the router.
- */
 export function OrderDetailPage() {
-  useDocumentTitle("Chi tiết đơn đặt nấu | GO Cook");
+  useDocumentTitle('Chi tiết đơn đặt nấu | GO Cook');
+  const [params] = useSearchParams();
+  const rawId = params.get('id');
+  const id = Number(rawId);
+  const validId = rawId !== null && Number.isSafeInteger(id) && id > 0;
+  const [order, setOrder] = useState<CustomerOrder | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState<UiMessage | null>(null);
+
+  useEffect(() => {
+    if (!validId) {
+      setLoading(false);
+      setOrder(null);
+      setMessage({ text: 'Mã đơn hàng không hợp lệ.' });
+      return;
+    }
+    let active = true;
+    setLoading(true);
+    setMessage(null);
+    customerOrderClient.detail(id)
+      .then((result) => { if (active) setOrder(result); })
+      .catch((error: Error) => {
+        if (active) { setOrder(null); setMessage({ text: error.message }); }
+      })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [id, validId]);
 
   return (
-    <>
-      <div className={"container"}>
-        <div className={"page-heading"}>
-          <nav className={"breadcrumb"} aria-label={"Đường dẫn"}>
-            <a href={"/"}>
-              {"Trang chủ"}
-            </a>
-            <span>
-              {"/"}
-            </span>
-            <a href={"/orders"}>
-              {"Đơn đặt nấu"}
-            </a>
-            <span>
-              {"/"}
-            </span>
-            <span>
-              {"Đơn đặt nấu #GC-260926"}
-            </span>
-          </nav>
-          <h1>
-            {"Đơn đặt nấu #GC-260926"}
-          </h1>
-          <p className={"lead"}>
-            {"Đã xác nhận · 26/09/2026"}
-          </p>
-        </div>
-        <div className={"split"}>
-          <div className={"stack"}>
-            <section className={"card stack"}>
-              <div className={"order-item"}>
-                <img className={""} src={"/assets/meal.png"} alt={"Mâm cơm Việt với cá kho, canh chua, rau xào và thịt luộc"} loading={"lazy"} />
-                <div>
-                  <h3>
-                    {"Mâm Cơm Sum Vầy Miền Nam"}
-                  </h3>
-                  <p className={"muted"}>
-                    {"Bếp Cô Mai · 4 người · 4 món"}
-                  </p>
-                </div>
-              </div>
-              <hr className={"divider"} />
-              <div className={"grid grid-2"}>
-                <div>
-                  <p className={"small muted"}>
-                    {"Lịch dùng bữa"}
-                  </p>
-                  <strong>
-                    {"26/09/2026 · 18:30"}
-                  </strong>
-                </div>
-                <div>
-                  <p className={"small muted"}>
-                    {"Khu vực nấu"}
-                  </p>
-                  <strong>
-                    {"Bình Thạnh, TP. Hồ Chí Minh"}
-                  </strong>
-                </div>
-              </div>
-              <div className={"soft"}>
-                {"Ghi chú: ít cay, để riêng nước chấm."}
-              </div>
-            </section>
-            <section className={"card stack"}>
-              <h3>
-                {"Đầu bếp phụ trách"}
-              </h3>
-              <div className={"row"}>
-                <img className={"avatar"} src={"/assets/chef.png"} alt={"Ảnh minh họa đầu bếp nấu ăn tại nhà"} loading={"lazy"} />
-                <strong>
-                  {"Nguyễn Thị Mai · Bếp Cô Mai"}
-                </strong>
-              </div>
-              <div className={"row"}>
-                <a className={"btn secondary"} href={"/chat"}>
-                  {"Nhắn tin"}
-                </a>
-                <a className={"text-link"} href={"/tracking"}>
-                  {"Theo dõi đơn đang nấu mẫu"}
-                </a>
-              </div>
-            </section>
-          </div>
-          <aside className={"card summary stack"}>
-            <h3>
-              {"Chi phí đặt lịch"}
-            </h3>
-            <div>
-              <div className={"summary-line"}>
-                <span>
-                  {"Thực đơn · 4 người"}
-                </span>
-                <strong>
-                  {"480.000đ"}
-                </strong>
-              </div>
-              <div className={"summary-line"}>
-                <span>
-                  {"Phí nguyên liệu & công nấu"}
-                </span>
-                <span className={"green"}>
-                  {"Đã bao gồm"}
-                </span>
-              </div>
-              <div className={"summary-line"}>
-                <span>
-                  {"Dọn dẹp gian bếp"}
-                </span>
-                <span className={"green"}>
-                  {"Đã bao gồm"}
-                </span>
-              </div>
-              <div className={"summary-line"}>
-                <span>
-                  {"Ưu đãi"}
-                </span>
-                <span>
-                  {"0đ"}
-                </span>
-              </div>
-              <div className={"summary-line total"}>
-                <span>
-                  {"Tổng cộng"}
-                </span>
-                <strong>
-                  {"480.000đ"}
-                </strong>
-              </div>
+    <div className="container">
+      <div className="page-heading">
+        <nav className="breadcrumb" aria-label="Đường dẫn">
+          <Link to={ROUTES.HOME}>Trang chủ</Link><span>/</span>
+          <Link to={ROUTES.ORDERS}>Lịch sử mua hàng</Link><span>/</span>
+          <span>Chi tiết đơn</span>
+        </nav>
+        <h1>{order ? `Đơn đặt nấu #${order.orderCode}` : 'Chi tiết đơn đặt nấu'}</h1>
+      </div>
+      <Notice message={message} />
+      {loading ? <Loading /> : order ? (
+        <div className="split">
+          <section className="card stack">
+            <div className="between">
+              <h2>{order.productName}</h2>
+              <span className={`badge ${statusClass(order.status)}`}>
+                {ORDER_LABEL[order.status] || order.status}
+              </span>
             </div>
-            <span className={"badge"}>
-              {"Đã thanh toán · Dữ liệu mẫu"}
-            </span>
-            <button className={"btn secondary"} type={"button"} data-action={"cancel-order"} disabled title={"Chức năng sẽ được tích hợp ở giai đoạn tiếp theo"}>
-              {"Yêu cầu hủy lịch"}
-            </button>
-            <a className={"text-link"} href={"/help"}>
-              {"Xem chính sách dịch vụ"}
-            </a>
+            <p><strong>Mã đơn:</strong> {order.orderCode}</p>
+            <p><strong>Đầu bếp:</strong> {order.chefName || 'Đang cập nhật'}</p>
+            <p><strong>Số khách:</strong> {order.guestCount} người</p>
+            <p><strong>Ngày đặt:</strong> {dateTime(order.createdAt)}</p>
+            <p><strong>Lịch phục vụ:</strong> {dateTime(order.scheduledAt)}</p>
+            <p><strong>Địa chỉ nấu:</strong> {order.serviceAddress || 'Chưa có thông tin'}</p>
+            <p><strong>Ghi chú:</strong> {order.customerNote || 'Không có'}</p>
+            <Link className="btn secondary" to={ROUTES.ORDERS}>← Quay lại danh sách</Link>
+          </section>
+          <aside className="card summary stack">
+            <h3>Chi phí đặt lịch</h3>
+            <div className="summary-line"><span>Thực đơn</span><strong>{money(order.totalAmount)}</strong></div>
+            <div className="summary-line total"><span>Tổng cộng</span><strong>{money(order.totalAmount)}</strong></div>
+            <p className="small muted">Trang này hiển thị thông tin đơn hàng; không xác nhận đã thanh toán.</p>
           </aside>
         </div>
-      </div>
-    </>
+      ) : null}
+    </div>
   );
 }

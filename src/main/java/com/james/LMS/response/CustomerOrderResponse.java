@@ -21,9 +21,16 @@ public record CustomerOrderResponse(
 
   public static CustomerOrderResponse from(CookOrder order) {
     return new CustomerOrderResponse(
-        order.getId(), order.getOrderCode(), order.getProductName(),
-        order.getChefName(), order.getGuestCount(), order.getScheduledAt(),
-        order.getTotalAmount(), order.getStatus(), order.getCreatedAt(),
-        order.getServiceAddress(), order.getCustomerNote());
+        order.getId(), 
+        order.getOrderCode(), 
+        order.getProductName(),
+        order.getChefName(), 
+        order.getGuestCount(), 
+        order.getScheduledAt(),
+        order.getTotalAmount(),
+        order.getStatus(), 
+        order.getCreatedAt(),
+        order.getServiceAddress(),
+        order.getCustomerNote());
   }
 }

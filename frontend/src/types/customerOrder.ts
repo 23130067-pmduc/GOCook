@@ -1,0 +1,25 @@
+
+import type { PageResponse } from './api';
+
+export type CustomerOrderStatus =
+  | 'PENDING'
+  | 'CONFIRMED'
+  | 'COOKING'
+  | 'COMPLETED'
+  | 'CANCELLED';
+
+export interface CustomerOrder {
+  id: number;
+  orderCode: string;
+  productName: string;
+  chefName: string | null;
+  guestCount: number;
+  createdAt: string | null;
+  scheduledAt: string | null;
+  totalAmount: number | string;
+  status: CustomerOrderStatus;
+  serviceAddress?: string | null;
+  customerNote?: string | null;
+}
+
+export type CustomerOrdersResponse = PageResponse<CustomerOrder>;

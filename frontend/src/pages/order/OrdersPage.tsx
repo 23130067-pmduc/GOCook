@@ -1,137 +1,108 @@
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { customerOrderClient } from '../../clients/customerOrderClient';
 import { AccountSidebar } from '../../components/account/AccountSidebar';
+import { Loading } from '../../components/common/Loading';
+import { Notice } from '../../components/common/Notice';
+import { Pager } from '../../components/common/Pager';
+import { ORDER_LABEL } from '../../constants/labels';
 import { ROUTES } from '../../constants/routes';
 import { useDocumentTitle } from '../../hooks/common/useDocumentTitle';
+import type { CustomerOrdersResponse } from '../../types/customerOrder';
+import type { UiMessage } from '../../types/api';
+import { dateTime, money } from '../../util/format';
+import { statusClass } from '../../util/status';
 
-/**
- * Route: /orders
- * Migrated from the former JSP demo markup into a dedicated React page.
- * Keep future business logic in hooks/clients for this domain, not inside the router.
- */
+const filters = [
+  { value: '', label: 'Tất cả' },
+  { value: 'PENDING', label: 'Chờ xác nhận' },
+  { value: 'CONFIRMED', label: 'Đã xác nhận' },
+  { value: 'COOKING', label: 'Đang nấu' },
+  { value: 'COMPLETED', label: 'Hoàn thành' },
+  { value: 'CANCELLED', label: 'Đã hủy' },
+];
+
 export function OrdersPage() {
-  useDocumentTitle("Đơn đặt nấu của tôi | GO Cook");
+  useDocumentTitle('Lịch sử mua hàng | GO Cook');
+  const [params, setParams] = useSearchParams();
+  const status = params.get('status') || '';
+  const queryPage = Number(params.get('page') || '0');
+  const page = Number.isSafeInteger(queryPage) && queryPage >= 0 ? queryPage : 0;
+  const [data, setData] = useState<CustomerOrdersResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState<UiMessage | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setMessage(null);
+    customerOrderClient.list({ status, page })
+      .then((result) => { if (active) setData(result); })
+      .catch((error: Error) => {
+        if (active) { setData(null); setMessage({ text: error.message }); }
+      })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [status, page]);
 
   return (
-    <>
-      <div className={"container"}>
-        <div className={"page-heading"}>
-          <nav className={"breadcrumb"} aria-label={"Đường dẫn"}>
-            <Link to={ROUTES.HOME}>
-              {"Trang chủ"}
-            </Link>
-            <span>
-              {"/"}
-            </span>
-            <span>
-              {"Những bữa cơm của bạn"}
-            </span>
+    <div className="container">
+      <div className="page-heading">
+        <nav className="breadcrumb" aria-label="Đường dẫn">
+          <Link to={ROUTES.HOME}>Trang chủ</Link><span>/</span><span>Lịch sử mua hàng</span>
+        </nav>
+        <h1>Lịch sử mua hàng</h1>
+        <p className="lead">Xem lại những bữa ăn bạn đã đặt và theo dõi trạng thái đơn hàng.</p>
+      </div>
+      <div className="workspace">
+        <AccountSidebar active="orders" />
+        <div className="stack">
+          <nav className="tabs" aria-label="Lọc trạng thái đơn hàng">
+            {filters.map((filter) => (
+              <Link
+                key={filter.value}
+                to={`${ROUTES.ORDERS}?${new URLSearchParams({ status: filter.value, page: '0' })}`}
+                aria-current={status === filter.value ? 'page' : undefined}
+              >{filter.label}</Link>
+            ))}
           </nav>
-          <h1>
-            {"Những bữa cơm của bạn"}
-          </h1>
-          <p className={"lead"}>
-            {"Theo dõi lịch sắp tới và xem lại những lần đặt trước."}
-          </p>
-        </div>
-        <div className={"workspace"}>
-          <AccountSidebar active="orders" />
-          <div className={"stack"}>
-            <nav className={"tabs"} aria-label={"Trạng thái đơn"}>
-              <a href={"#upcoming"}>
-                {"Sắp tới"}
-              </a>
-              <a href={"#active"}>
-                {"Đang nấu"}
-              </a>
-              <a href={"#completed"}>
-                {"Hoàn thành"}
-              </a>
-            </nav>
-            <article id={"upcoming"} className={"card stack"}>
-              <div className={"between"}>
-                <strong>
-                  {"#GC-260926"}
-                </strong>
-                <span className={"badge"}>
-                  {"Đã xác nhận"}
-                </span>
-              </div>
-              <div className={"order-item"}>
-                <img className={""} src={"/assets/meal.png"} alt={"Mâm cơm Việt với cá kho, canh chua, rau xào và thịt luộc"} loading={"lazy"} />
-                <div>
-                  <h3>
-                    {"Mâm Cơm Sum Vầy Miền Nam"}
-                  </h3>
-                  <p className={"muted small"}>
-                    {"Bếp Cô Mai · 4 người · 26/09/2026, 18:30"}
-                  </p>
-                </div>
-              </div>
-              <div className={"between"}>
-                <span className={"price"}>
-                  {"480.000đ"}
-                </span>
-                <div className={"row"}>
-                  <Link className={"btn secondary sm"} to={ROUTES.ORDER_DETAIL}>
-                    {"Chi tiết đơn"}
-                  </Link>
-                  <Link className={"btn sm"} to={ROUTES.CHAT}>
-                    {"Nhắn đầu bếp"}
-                  </Link>
-                </div>
-              </div>
-            </article>
-            <article id={"active"} className={"card stack"}>
-              <div className={"between"}>
-                <strong>
-                  {"#GC-260924"}
-                </strong>
-                <span className={"badge gold"}>
-                  {"Đang nấu"}
-                </span>
-              </div>
-              <h3>
-                {"Bữa tối sum vầy · 4 người"}
-              </h3>
-              <p className={"muted"}>
-                {"Đầu bếp đang chế biến món ăn tại gian bếp của bạn."}
-              </p>
-              <div className={"between"}>
-                <span className={"price"}>
-                  {"480.000đ"}
-                </span>
-                <Link className={"btn sm"} to={ROUTES.TRACKING}>
-                  {"Theo dõi tiến trình"}
-                </Link>
-              </div>
-            </article>
-            <article id={"completed"} className={"card stack"}>
-              <div className={"between"}>
-                <strong>
-                  {"#GC-260920"}
-                </strong>
-                <span className={"badge gray"}>
-                  {"Hoàn thành"}
-                </span>
-              </div>
-              <h3>
-                {"Mâm Chay Thanh Lành"}
-              </h3>
-              <p className={"muted"}>
-                {"20/09/2026 · 4 người · Bếp Cô Mai"}
-              </p>
-              <div className={"between"}>
-                <span className={"price"}>
-                  {"420.000đ"}
-                </span>
-                <Link className={"btn secondary sm"} to={ROUTES.MENU_VEGETARIAN}>
-                  {"Đặt lại thực đơn"}
-                </Link>
-              </div>
-            </article>
-          </div>
+          <Notice message={message} />
+          {loading ? <Loading text="Đang tải lịch sử mua hàng..." /> : data?.content.length ? (
+            <>
+              <p className="small muted">Tìm thấy {data.totalElements} đơn hàng.</p>
+              {data.content.map((order) => (
+                <article className="card stack" key={order.id}>
+                  <div className="between">
+                    <strong>#{order.orderCode}</strong>
+                    <span className={`badge ${statusClass(order.status)}`}>
+                      {ORDER_LABEL[order.status] || order.status}
+                    </span>
+                  </div>
+                  <div>
+                    <h3>{order.productName}</h3>
+                    <p className="muted small">Đầu bếp: {order.chefName || 'Đang cập nhật'} · {order.guestCount} người</p>
+                    <p className="muted small">Ngày đặt: {dateTime(order.createdAt)}</p>
+                    <p className="muted small">Ngày phục vụ: {dateTime(order.scheduledAt)}</p>
+                  </div>
+                  <div className="between">
+                    <strong className="price">{money(order.totalAmount)}</strong>
+                    <Link className="btn secondary sm" to={`${ROUTES.ORDER_DETAIL}?id=${order.id}`}>
+                      Chi tiết đơn
+                    </Link>
+                  </div>
+                </article>
+              ))}
+              <Pager data={data} onPage={(nextPage) => setParams({ status, page: String(nextPage) })} />
+            </>
+          ) : !message ? (
+            <div className="card empty">
+              <h3>Chưa có đơn hàng</h3>
+              <p className="muted">Bạn chưa có đơn nào trong trạng thái này.</p>
+              <Link className="btn" to={ROUTES.MENUS}>Xem thực đơn</Link>
+            </div>
+          ) : null}
         </div>
       </div>
-    </>
+    </div>
   );
 }
